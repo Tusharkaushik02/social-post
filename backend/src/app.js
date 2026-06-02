@@ -8,6 +8,17 @@ dotenv.config();
 
 const app = express();
 
+// CORS middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
+
 app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage() });
@@ -44,5 +55,20 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
         res.status(500).json({ error: 'Failed to create post' });
     }
 });
+
+app.get('/posts', async (req, res) => {
+    try {
+        const posts =await Post.find().sort({ createdAt: -1 });
+        return res.status(200).json(posts);
+    } catch (error) {
+        console.error('Error fetching posts:', error);
+        return res.status(500).json({ error: 'Failed to fetch posts' });
+    }
+});
+
+app.get('/' , async (req, res) => {
+    res.send("Welcome to the Instagram Clone API");
+});
+console.log("App routes loaded");
 
 module.exports = app;
