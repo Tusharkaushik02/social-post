@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const multer = require('multer');
 const Post = require('./model/post.model');
+const {uploadImage} = require('./services/storage.service');
 
 dotenv.config();
 
@@ -25,9 +26,11 @@ app.post('/create-post', upload.single('image'), async (req, res) => {
         }
 
         // Create and save post
+       const result = await uploadImage(req.file.buffer);
+
         const post = new Post({
-            image: req.file.buffer.toString('base64'), // or store image URL if uploading to cloud
-            caption
+            caption,
+            image: result
         });
 
         await post.save();
