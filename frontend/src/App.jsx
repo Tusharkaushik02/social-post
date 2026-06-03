@@ -30,11 +30,26 @@ export default function App() {
         toastOptions={{
           duration: 3000,
           style: {
-            background: 'var(--color-inverse-surface)',
-            color: 'var(--color-inverse-on-surface)',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '15px',
-            fontFamily: 'var(--font-sans)',
+            background: '#ffffff',
+            color: '#1a1c1f',
+            borderRadius: '12px',
+            fontSize: '14px',
+            fontFamily: "'Inter', system-ui, sans-serif",
+            border: '0.5px solid rgba(207, 196, 197, 0.3)',
+            padding: '12px 16px',
+            boxShadow: '0 8px 30px rgba(0, 0, 0, 0.08)',
+          },
+          success: {
+            iconTheme: {
+              primary: '#059669',
+              secondary: '#ffffff',
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: '#ba1a1a',
+              secondary: '#ffffff',
+            },
           },
         }}
       />

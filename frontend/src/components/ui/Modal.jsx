@@ -3,7 +3,6 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
-import { cn } from '@/lib/utils';
 
 export default function Modal({
   isOpen,
@@ -31,11 +30,11 @@ export default function Modal({
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  const sizeClasses = {
-    sm: 'sm:max-w-[430px]',
-    md: 'sm:max-w-[520px]',
-    lg: 'sm:max-w-[720px]',
-  };
+  const sizeClass = {
+    sm: 'modal-sm',
+    md: 'modal-md',
+    lg: 'modal-lg',
+  }[size] || 'modal-md';
 
   const mobileVariants = {
     initial: { y: '100%' },
@@ -52,15 +51,18 @@ export default function Modal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center sm:p-5">
+        <div className="modal-overlay">
+          {/* Backdrop */}
           <motion.div
-            className="fixed inset-0 bg-black/40 backdrop-blur-[40px]"
+            className="modal-backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
+            aria-hidden="true"
           />
 
+          {/* Panel */}
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -69,37 +71,34 @@ export default function Modal({
             initial="initial"
             animate="animate"
             exit="exit"
-            className={cn(
-              'z-10 flex flex-col overflow-hidden border-[0.5px] border-outline-variant/30 bg-surface-container-lowest text-on-surface shadow-elevated',
-              'max-sm:fixed max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:max-h-[88vh] max-sm:w-full max-sm:rounded-t-xl',
-              'sm:w-full sm:rounded-xl',
-              sizeClasses[size],
-              className
-            )}
+            className={`modal-panel ${sizeClass} ${className}`.trim()}
           >
+            {/* Mobile drag handle */}
             {isMobile && (
-              <div className="flex shrink-0 justify-center py-3">
-                <div className="h-1 w-10 rounded-full bg-surface-container-highest" />
+              <div className="modal-drag-handle">
+                <div className="modal-drag-handle-bar" />
               </div>
             )}
 
+            {/* Header */}
             {title && (
-              <div className="flex shrink-0 items-center justify-between border-b-[0.5px] border-outline-variant/30 px-5 py-4">
-                <h2 id="modal-title" className="truncate text-headline-md font-headline-md text-primary">
+              <div className="modal-header">
+                <h2 id="modal-title" className="modal-title">
                   {title}
                 </h2>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+                  className="modal-close-btn"
                   aria-label="Close modal"
                 >
-                  <IoCloseOutline size={22} />
+                  <IoCloseOutline size={20} />
                 </button>
               </div>
             )}
 
-            <div className="flex-1 overflow-y-auto px-5 py-5 max-sm:pb-8">
+            {/* Content */}
+            <div className="modal-body">
               {children}
             </div>
           </motion.div>

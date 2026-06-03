@@ -8,10 +8,8 @@ import {
   IoPersonOutline,
 } from 'react-icons/io5';
 import Avatar from '@/components/ui/Avatar';
-import Button from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 import { buildPath, ROUTES } from '@/router/routes';
-import { cn } from '@/lib/utils';
 import { useUIStore } from '@/stores/useUIStore';
 
 const baseItems = [
@@ -28,15 +26,15 @@ export default function Sidebar() {
   const profilePath = buildPath(ROUTES.PROFILE, { username });
 
   const navClass = ({ isActive }) =>
-    cn(
-      'group relative flex h-12 items-center gap-4 rounded-sm px-4 text-body-md font-semibold text-on-surface-variant transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface',
-      isActive && 'bg-surface-container-high text-primary font-bold'
-    );
+    `sidebar-link${isActive ? ' active' : ''}`;
 
   return (
-    <aside className="sticky top-24 hidden h-[calc(100dvh-6rem)] w-[240px] shrink-0 flex-col justify-between lg:flex">
+    <aside
+      className="sidebar"
+      aria-label="Sidebar navigation"
+    >
       <div>
-        <nav className="space-y-1.5" aria-label="Primary navigation">
+        <nav className="sidebar-nav" aria-label="Primary navigation">
           {baseItems.map((item) => (
             <NavLink key={item.label} to={item.to} end={item.end} className={navClass}>
               {({ isActive }) => (
@@ -44,10 +42,11 @@ export default function Sidebar() {
                   {isActive && (
                     <motion.span
                       layoutId="sidebar-active"
-                      className="absolute inset-y-2 left-1 w-1 rounded-full bg-secondary"
+                      className="active-indicator"
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     />
                   )}
-                  <item.icon size={22} className="transition-transform group-hover:scale-105" />
+                  <item.icon size={20} style={{ flexShrink: 0, transition: 'transform 0.2s' }} />
                   {item.label}
                 </>
               )}
@@ -61,10 +60,11 @@ export default function Sidebar() {
                   {isActive && (
                     <motion.span
                       layoutId="sidebar-active"
-                      className="absolute inset-y-2 left-1 w-1 rounded-full bg-secondary"
+                      className="active-indicator"
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     />
                   )}
-                  <IoPersonOutline size={22} className="transition-transform group-hover:scale-105" />
+                  <IoPersonOutline size={20} style={{ flexShrink: 0, transition: 'transform 0.2s' }} />
                   Profile
                 </>
               )}
@@ -73,36 +73,36 @@ export default function Sidebar() {
             <button
               type="button"
               onClick={() => openAuthModal('login')}
-              className="flex h-12 w-full items-center gap-4 rounded-sm px-4 text-left text-body-md font-semibold text-on-surface-variant transition-all duration-200 hover:bg-surface-container-low hover:text-on-surface"
+              className="sidebar-link"
             >
-              <IoPersonOutline size={22} />
+              <IoPersonOutline size={20} style={{ flexShrink: 0 }} />
               Profile
             </button>
           )}
         </nav>
       </div>
 
-      <div className="flex flex-col gap-4 pb-8">
-        <Button
+      <div className="sidebar-footer">
+        {/* New Post CTA */}
+        <button
           type="button"
-          variant="primary"
-          fullWidth
-          leftIcon={<IoAddOutline size={18} />}
           onClick={() => (isAuthenticated ? openCreatePostModal() : openAuthModal('login'))}
-          className="h-12 justify-center font-label-md text-label-md rounded-full"
+          className="sidebar-new-post"
         >
+          <IoAddOutline size={18} />
           New Post
-        </Button>
+        </button>
 
+        {/* User Card */}
         <button
           type="button"
           onClick={() => (!isAuthenticated ? openAuthModal('login') : undefined)}
-          className="flex items-center gap-3 rounded-sm border-[0.5px] border-outline-variant/30 bg-surface-container-lowest p-3 text-left shadow-card hover:bg-surface-container-low transition-colors w-full"
+          className="sidebar-user-card"
         >
           <Avatar src={user?.avatar} fallbackName={displayName} alt={displayName} size="sm" />
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-label-md font-semibold text-primary">{displayName}</p>
-            <p className="truncate text-label-sm text-on-surface-variant">
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p className="truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-on-surface)' }}>{displayName}</p>
+            <p className="truncate" style={{ fontSize: 12, color: 'var(--color-on-surface-variant)' }}>
               {isAuthenticated ? `@${username}` : 'Sign in to interact'}
             </p>
           </div>

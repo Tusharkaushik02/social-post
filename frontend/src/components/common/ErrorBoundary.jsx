@@ -8,6 +8,7 @@
  * getDerivedStateFromError and componentDidCatch lifecycle methods.
  */
 import { Component } from 'react';
+import { IoRefreshOutline, IoWarningOutline } from 'react-icons/io5';
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -33,15 +34,37 @@ export default class ErrorBoundary extends Component {
       // Fallback UI
       return (
         this.props.fallback || (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <h2 className="text-headline-md mb-2">Something went wrong</h2>
-            <p className="text-body-md text-on-surface-variant mb-6">
+          <div
+            role="alert"
+            className="error-fallback"
+          >
+            {/* Icon */}
+            <div className="error-icon-badge">
+              <IoWarningOutline size={28} />
+            </div>
+
+            {/* Heading */}
+            <h2 className="text-headline-md" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
+              Something went wrong
+            </h2>
+
+            {/* Description */}
+            <p className="text-body-md" style={{
+              marginTop: '8px',
+              maxWidth: '24rem',
+              color: 'var(--color-on-surface-variant)',
+            }}>
               An unexpected error occurred. Please try again.
             </p>
+
+            {/* Try again button */}
             <button
               onClick={this.handleReset}
-              className="press-scale px-4 py-2 bg-primary text-on-primary rounded-sm"
+              className="btn btn-primary btn-md btn-pill press-scale"
+              style={{ marginTop: '24px' }}
+              aria-label="Try again"
             >
+              <IoRefreshOutline size={17} />
               Try again
             </button>
           </div>

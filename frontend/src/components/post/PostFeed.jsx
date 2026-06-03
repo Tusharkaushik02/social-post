@@ -8,19 +8,24 @@ import { useIntersectionObserver } from '@/hooks/useIntersectionObserver';
 
 function PostCardSkeleton() {
   return (
-    <article className="overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/50 p-4 backdrop-blur-xl">
-      <div className="flex items-center gap-3">
-        <Skeleton variant="circular" width={44} height={44} />
-        <div className="flex-1 space-y-2">
-          <Skeleton variant="text" width="34%" height={14} />
-          <Skeleton variant="text" width="22%" height={12} />
+    <article className="post-skeleton">
+      <Skeleton variant="circular" width={40} height={40} />
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Skeleton variant="text" width="30%" height={14} />
+          <Skeleton variant="text" width="15%" height={12} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <Skeleton variant="text" width="90%" height={14} />
+          <Skeleton variant="text" width="65%" height={14} />
+        </div>
+        <Skeleton variant="rectangular" style={{ aspectRatio: '16/10', borderRadius: 'var(--radius-md)' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', paddingTop: '4px' }}>
+          <Skeleton variant="text" width={60} height={14} />
+          <Skeleton variant="text" width={60} height={14} />
+          <Skeleton variant="text" width={40} height={14} />
         </div>
       </div>
-      <div className="mt-4 space-y-2">
-        <Skeleton variant="text" width="88%" height={14} />
-        <Skeleton variant="text" width="62%" height={14} />
-      </div>
-      <Skeleton variant="rectangular" className="mt-4 aspect-[16/11] rounded-2xl" />
     </article>
   );
 }
@@ -47,7 +52,7 @@ export default function PostFeed({
 
   if (isLoading) {
     return (
-      <div className="space-y-6" aria-label="Loading posts">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }} aria-label="Loading posts" role="status">
         {Array.from({ length: 3 }).map((_, index) => (
           <PostCardSkeleton key={index} />
         ))}
@@ -77,18 +82,25 @@ export default function PostFeed({
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {posts.map((post) => (
         <PostCard key={post._id} post={post} />
       ))}
 
-      <div ref={ref} className="min-h-8" aria-hidden="true" />
+      <div ref={ref} style={{ minHeight: '32px' }} aria-hidden="true" />
 
       {isFetchingMore && <PostCardSkeleton />}
 
-      {!hasMore && (
-        <p className="py-8 text-center text-label-md text-zinc-600">
-          You have reached the end.
+      {!hasMore && posts.length > 0 && (
+        <p style={{
+          padding: '32px 0',
+          textAlign: 'center',
+          fontSize: '11px',
+          fontWeight: 600,
+          letterSpacing: '0.03em',
+          color: 'var(--color-on-surface-variant)',
+        }}>
+          You&apos;ve reached the end
         </p>
       )}
     </div>

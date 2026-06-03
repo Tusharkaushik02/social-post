@@ -29,6 +29,7 @@ export default function Navbar() {
   const username = user?.username || 'me';
   const profilePath = buildPath(ROUTES.PROFILE, { username });
 
+  // Close menu on click outside
   useEffect(() => {
     function handlePointerDown(event) {
       if (!menuRef.current?.contains(event.target)) {
@@ -39,6 +40,17 @@ export default function Navbar() {
     document.addEventListener('pointerdown', handlePointerDown);
     return () => document.removeEventListener('pointerdown', handlePointerDown);
   }, []);
+
+  // Close menu on Escape key
+  useEffect(() => {
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') setIsProfileMenuOpen(false);
+    }
+    if (isProfileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
+    }
+  }, [isProfileMenuOpen]);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -53,92 +65,144 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-nav border-b-[0.5px] border-outline-variant/30">
-      <nav className="mx-auto flex h-16 w-full max-w-7xl items-center justify-between px-margin-mobile md:px-margin-desktop">
+    <header className="navbar glass-nav">
+      <nav
+        className="navbar-inner"
+        aria-label="Main navigation"
+      >
+        {/* Logo */}
         <Link
           to={ROUTES.HOME}
-          className="flex shrink-0 items-center gap-4"
+          className="navbar-brand"
           aria-label={`${APP_NAME} home`}
         >
-          <span className="text-headline-md font-headline-md font-bold text-primary">
-            SocialPost
-          </span>
+          <div style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--color-primary)', color: 'var(--color-on-primary)',
+            fontSize: 14, fontWeight: 700,
+          }}>
+            S
+          </div>
+          <span className="navbar-brand-text">{APP_NAME}</span>
         </Link>
 
+        {/* Search */}
         <form
           onSubmit={handleSearch}
           role="search"
-          className="hidden flex-1 max-w-md mx-8 md:block"
+          className="navbar-search"
         >
-          <label className="relative block">
-            <span className="pointer-events-none absolute left-3 top-1/2 flex -translate-y-1/2 text-on-surface-variant text-[20px]">
-              <IoSearchOutline size={18} />
+          <label style={{ position: 'relative', display: 'block' }}>
+            <span className="navbar-search-icon">
+              <IoSearchOutline size={16} />
             </span>
             <input
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Search..."
-              className="h-10 w-full bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-primary focus:bg-surface-container-lowest transition-colors"
+              aria-label="Search posts and users"
+              className="navbar-search-input"
+              style={{ paddingLeft: 36 }}
             />
           </label>
         </form>
 
-        <div className="flex items-center gap-4 text-on-surface-variant">
+        {/* Right Actions */}
+        <div className="navbar-actions">
           {isAuthenticated && (
             <button
               type="button"
-              className="hover:opacity-70 transition-opacity active:scale-95 duration-200 flex items-center justify-center p-1.5"
+              className="navbar-icon-btn"
               aria-label="Notifications"
             >
-              <IoNotificationsOutline size={22} />
+              <IoNotificationsOutline size={20} />
             </button>
           )}
 
           {!isAuthenticated ? (
-            <div className="flex items-center gap-2">
+            <div className="navbar-actions">
               <Button type="button" variant="ghost" size="sm" onClick={() => openAuthModal('login')}>
                 Log In
               </Button>
-              <Button type="button" variant="primary" size="sm" className="rounded-full px-4 py-1.5" onClick={() => openAuthModal('register')}>
+              <Button type="button" variant="primary" size="sm" onClick={() => openAuthModal('register')}>
                 Sign Up
               </Button>
             </div>
           ) : (
-            <div className="relative" ref={menuRef}>
+            <div style={{ position: 'relative' }} ref={menuRef}>
               <motion.button
                 type="button"
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setIsProfileMenuOpen((value) => !value)}
-                className="flex h-10 items-center gap-2 rounded-full border border-outline-variant/30 bg-surface-container-low py-1 pl-1 pr-2 text-on-surface hover:bg-surface-container-high transition-colors"
+                className="navbar-profile-btn"
                 aria-haspopup="menu"
                 aria-expanded={isProfileMenuOpen}
               >
-                <Avatar src={user?.avatar} fallbackName={displayName} alt={`${displayName} avatar`} size="sm" />
-                <IoChevronDownOutline size={15} className="hidden text-on-surface-variant sm:block" />
+                <Avatar src={user?.avatar} fallbackName={displayName} alt={`${displayName} avatar`} size="xs" />
+                <IoChevronDownOutline
+                  size={13}
+                  style={{
+                    color: 'var(--color-on-surface-variant)',
+                    transition: 'transform 0.2s',
+                    transform: isProfileMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+                    display: 'none',
+                  }}
+                  className="navbar-chevron"
+                />
               </motion.button>
 
               <AnimatePresence>
                 {isProfileMenuOpen && (
                   <motion.div
-                    initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                    initial={{ opacity: 0, y: -6, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                    transition={{ duration: 0.16 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
                     role="menu"
-                    className="absolute right-0 mt-3 w-56 overflow-hidden rounded-md border border-outline-variant/30 bg-surface-container-lowest p-1 shadow-elevated backdrop-blur-xl"
+                    className="dropdown-menu"
                   >
-                    <Link to={profilePath} role="menuitem" onClick={() => setIsProfileMenuOpen(false)} className="flex items-center gap-3 rounded-sm px-3 py-3 text-body-md text-on-surface transition-colors hover:bg-surface-container-low">
-                      <IoPersonOutline size={18} />
+                    {/* User info header */}
+                    <div className="dropdown-user-info">
+                      <Avatar src={user?.avatar} fallbackName={displayName} alt={displayName} size="sm" />
+                      <div style={{ minWidth: 0 }}>
+                        <p className="truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-on-surface)' }}>{displayName}</p>
+                        <p className="truncate" style={{ fontSize: 12, color: 'var(--color-on-surface-variant)' }}>@{username}</p>
+                      </div>
+                    </div>
+
+                    <div className="dropdown-separator" />
+
+                    <Link
+                      to={profilePath}
+                      role="menuitem"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="dropdown-item"
+                    >
+                      <IoPersonOutline size={16} />
                       Profile
                     </Link>
-                    <Link to={ROUTES.SETTINGS} role="menuitem" onClick={() => setIsProfileMenuOpen(false)} className="flex items-center gap-3 rounded-sm px-3 py-3 text-body-md text-on-surface transition-colors hover:bg-surface-container-low">
-                      <IoSettingsOutline size={18} />
+                    <Link
+                      to={ROUTES.SETTINGS}
+                      role="menuitem"
+                      onClick={() => setIsProfileMenuOpen(false)}
+                      className="dropdown-item"
+                    >
+                      <IoSettingsOutline size={16} />
                       Settings
                     </Link>
-                    <button type="button" role="menuitem" onClick={handleLogout} className="flex w-full items-center gap-3 rounded-sm px-3 py-3 text-left text-body-md text-red-400 transition-colors hover:bg-red-500/10">
-                      <IoLogOutOutline size={18} />
-                      Logout
+
+                    <div className="dropdown-separator" />
+
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={handleLogout}
+                      className="dropdown-item dropdown-item-danger"
+                    >
+                      <IoLogOutOutline size={16} />
+                      Log out
                     </button>
                   </motion.div>
                 )}

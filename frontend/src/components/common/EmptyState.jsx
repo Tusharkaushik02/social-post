@@ -5,20 +5,37 @@ export default function EmptyState({ title, description, icon, action }) {
     <motion.div
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex flex-col items-center justify-center rounded-3xl border border-zinc-800/80 bg-zinc-900/45 px-6 py-16 text-center backdrop-blur-xl"
+      transition={{ duration: 0.3 }}
+      className="empty-state"
     >
       {icon && (
-        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950 text-3xl text-violet-400 shadow-card">
+        <motion.div
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          className="empty-state-icon"
+        >
           {icon}
-        </div>
+        </motion.div>
       )}
-      <h3 className="text-headline-md text-zinc-100">{title}</h3>
+
+      <h3 className="empty-state-title">{title}</h3>
+
       {description && (
-        <p className="mt-2 max-w-sm text-body-md text-zinc-500">
+        <p className="empty-state-desc">
           {description}
         </p>
       )}
-      {action && <div className="mt-6">{action}</div>}
+
+      {action && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          style={{ marginTop: '24px' }}
+        >
+          {action}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

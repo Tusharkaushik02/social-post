@@ -16,43 +16,61 @@ export default function AuthModal() {
       isOpen={isAuthModalOpen}
       onClose={closeAuthModal}
       size="sm"
-      className="max-w-[440px] p-0 overflow-hidden"
+      className="auth-modal-panel"
+      style={{ padding: 0 }}
     >
-      <div className="relative flex flex-col bg-surface-container-lowest">
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
         {/* Close Button */}
         <button
           onClick={closeAuthModal}
-          className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-surface-container-low hover:bg-surface-container-high transition-colors text-on-surface-variant active:scale-95"
+          className="auth-close-btn"
           aria-label="Close modal"
         >
           <IoCloseOutline size={20} />
         </button>
 
         {/* Gradient Header Banner */}
-        <div className="h-32 bg-gradient-to-br from-surface-container-lowest to-surface-container-low flex items-center justify-center relative overflow-hidden shrink-0 border-b-[0.5px] border-outline-variant/30">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-[30px] translate-x-1/2 -translate-y-1/2"></div>
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/5 rounded-full blur-[20px] -translate-x-1/2 translate-y-1/2"></div>
-          <h1 className="text-headline-lg font-headline-lg text-primary z-10 tracking-tight">SocialPost</h1>
+        <div className="auth-header">
+          {/* Decorative glow orbs */}
+          <div className="auth-header-orb-1" />
+          <div className="auth-header-orb-2" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, zIndex: 10 }}>
+            {/* App icon */}
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 'var(--radius-md)',
+              background: 'var(--color-primary)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <svg style={{ width: 20, height: 20, color: 'var(--color-on-primary)' }} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+              </svg>
+            </div>
+            <h1 className="auth-header-title">{APP_NAME}</h1>
+          </div>
         </div>
 
         {/* Content Area */}
-        <div className="p-8 pt-6 flex flex-col gap-6">
-          <div className="text-center">
-            <h2 className="text-headline-md font-headline-md text-primary mb-1">
-              {isLogin ? 'Welcome back' : 'Join SocialPost'}
+        <div className="auth-content">
+          <div style={{ textAlign: 'center' }}>
+            <h2 className="auth-welcome-title">
+              {isLogin ? 'Welcome back' : `Join ${APP_NAME}`}
             </h2>
-            <p className="text-body-md text-on-surface-variant">
-              {isLogin ? 'Sign in to see what\'s happening.' : 'Create your profile and start sharing.'}
+            <p className="auth-welcome-subtitle">
+              {isLogin ? "Sign in to see what's happening." : 'Create your profile and start sharing.'}
             </p>
           </div>
 
           <AnimatePresence mode="wait">
             <motion.div
               key={authModalView}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.18 }}
+              initial={{ opacity: 0, x: isLogin ? -20 : 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: isLogin ? 20 : -20 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
             >
               {isLogin ? (
                 <LoginForm onSwitchToRegister={() => switchAuthView('register')} />

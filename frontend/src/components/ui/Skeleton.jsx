@@ -1,5 +1,3 @@
-import { cn } from '@/lib/utils';
-
 /**
  * Skeleton — Atomic UI Component
  *
@@ -19,22 +17,21 @@ export default function Skeleton({
   className = '',
   ...props
 }) {
-  const baseClasses = 'animate-shimmer select-none pointer-events-none';
-  
-  const variantClasses = {
-    text: 'rounded-xs bg-surface-container',
-    circular: 'rounded-full bg-surface-container',
-    rectangular: 'rounded-md bg-surface-container',
-  };
+  const variantClass = {
+    text: 'skeleton-text',
+    circular: 'skeleton-circular',
+    rectangular: 'skeleton-rect',
+  }[variant] || 'skeleton-rect';
 
   return (
     <div
-      className={cn(baseClasses, variantClasses[variant], className)}
+      className={`skeleton ${variantClass} animate-shimmer ${className}`.trim()}
       style={{
         width: width || '100%',
         height: height || (variant === 'text' ? '1em' : '100%'),
       }}
       role="status"
+      aria-busy="true"
       aria-label="Loading placeholder"
       {...props}
     />

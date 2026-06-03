@@ -12,18 +12,21 @@ export default function AppLayout() {
   const closeCreatePostModal = useUIStore((s) => s.closeCreatePostModal);
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="app-layout">
       <Navbar />
 
-      <main className="mx-auto flex w-full max-w-7xl gap-8 px-margin-mobile md:px-margin-desktop pb-24 pt-24 justify-center">
+      <main className="app-main">
         <Sidebar />
-        <div className="min-w-0 flex-1 max-w-[640px]">
+        <div className="app-content">
           <Outlet />
         </div>
         <RightSidebar />
       </main>
 
+      {/* Mobile bottom tab bar — hidden on lg+ via its own classes */}
       <MobileTabBar />
+
+      {/* Global modals */}
       <AuthModal />
       <CreatePostModal isOpen={isCreatePostModalOpen} onClose={closeCreatePostModal} />
     </div>

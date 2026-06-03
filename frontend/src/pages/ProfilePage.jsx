@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
   IoBookmarkOutline,
@@ -126,35 +127,79 @@ export default function ProfilePage() {
 
   return (
     <FeedLayout>
-      <section className="overflow-hidden rounded-3xl border border-zinc-800/80 bg-zinc-900/55 shadow-card backdrop-blur-xl">
-        <div className="h-32 bg-gradient-to-br from-violet-500/35 via-zinc-900 to-zinc-950" />
-        <div className="px-5 pb-5">
-          <div className="-mt-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-            <div className="flex items-end gap-4">
-              <Avatar
-                src={profile?.avatar}
-                alt={profile?.displayName || username}
-                fallbackName={profile?.displayName || username}
-                size="xl"
-                className="rounded-full ring-4 ring-zinc-950"
-              />
-              <div className="pb-1">
-                <div className="flex items-center gap-2">
-                  <h1 className="text-[28px] font-bold leading-tight text-zinc-100">
+      {/* Profile Card */}
+      <motion.section
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35 }}
+        style={{
+          overflow: 'hidden',
+          borderRadius: 'var(--radius-xl)',
+          border: '0.5px solid rgba(207, 196, 197, 0.3)',
+          background: 'var(--color-surface-container-lowest)',
+          boxShadow: 'var(--shadow-card)',
+        }}
+      >
+        {/* Cover area */}
+        <div className="profile-cover">
+          <div className="profile-cover-fade" />
+        </div>
+
+        <div style={{ padding: '0 20px 24px' }}>
+          {/* Avatar + Name + Actions */}
+          <div style={{ marginTop: '-48px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '16px' }}>
+              <div className="profile-avatar-wrapper" style={{ marginTop: 0, marginLeft: 0 }}>
+                <Avatar
+                  src={profile?.avatar}
+                  alt={profile?.displayName || username}
+                  fallbackName={profile?.displayName || username}
+                  size="xl"
+                  className="profile-avatar-lg"
+                />
+                {profile?.verified && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '-2px',
+                    right: '-2px',
+                    borderRadius: 'var(--radius-full)',
+                    background: 'var(--color-background)',
+                    padding: '2px',
+                  }}>
+                    <IoCheckmarkCircle style={{ color: 'var(--color-secondary)' }} size={18} />
+                  </div>
+                )}
+              </div>
+              <div style={{ paddingBottom: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <h1 style={{
+                    fontSize: '26px',
+                    fontWeight: 700,
+                    lineHeight: 1.15,
+                    letterSpacing: '-0.01em',
+                    color: 'var(--color-on-surface)',
+                  }}>
                     {profile?.displayName || username}
                   </h1>
-                  {profile?.verified && <IoCheckmarkCircle className="text-violet-400" size={21} />}
                 </div>
-                <p className="text-body-md text-zinc-500">@{username}</p>
+                <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>@{username}</p>
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div style={{ display: 'flex', gap: '8px' }}>
               {isOwnProfile ? (
-                <Button type="button" variant="secondary">Edit Profile</Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                >
+                  Edit Profile
+                </Button>
               ) : (
                 <ProtectedAction onAction={handleFollow}>
-                  <Button type="button" variant={isFollowing ? 'secondary' : 'primary'}>
+                  <Button
+                    type="button"
+                    variant={isFollowing ? 'secondary' : 'primary'}
+                  >
                     {isFollowing ? 'Following' : 'Follow'}
                   </Button>
                 </ProtectedAction>
@@ -164,73 +209,137 @@ export default function ProfilePage() {
                 variant="secondary"
                 leftIcon={<IoShareOutline size={17} />}
                 onClick={handleShareProfile}
+                aria-label="Share profile"
               >
                 Share
               </Button>
             </div>
           </div>
 
-          <p className="mt-5 max-w-xl text-body-md leading-relaxed text-zinc-300">
+          {/* Bio */}
+          <p className="text-body-md" style={{
+            marginTop: '20px',
+            maxWidth: '36rem',
+            lineHeight: '1.6',
+            color: 'var(--color-on-surface)',
+          }}>
             {profile?.bio || 'No bio yet.'}
           </p>
 
-          <div className="mt-4 flex items-center gap-2 text-label-md text-zinc-500">
-            <IoCalendarOutline size={16} />
+          {/* Join date */}
+          <div className="text-label-md" style={{
+            marginTop: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            color: 'var(--color-on-surface-variant)',
+          }}>
+            <IoCalendarOutline size={15} />
             {formatJoinDate(profile?.joinedAt)}
           </div>
 
-          <dl className="mt-5 grid grid-cols-3 gap-2 rounded-2xl border border-zinc-800 bg-zinc-950/40 p-2">
+          {/* Stats */}
+          <dl className="profile-stats" style={{ marginTop: '20px' }}>
             {stats.map((item) => (
-              <div key={item.label} className="rounded-xl px-3 py-3 text-center">
-                <dt className="text-label-sm text-zinc-500">{item.label}</dt>
-                <dd className="mt-1 text-body-md font-bold text-zinc-100">
+              <div
+                key={item.label}
+                className="profile-stat"
+              >
+                <dd className="profile-stat-value">
                   {formatCount(item.value)}
                 </dd>
+                <dt className="profile-stat-label">{item.label}</dt>
               </div>
             ))}
           </dl>
         </div>
-      </section>
+      </motion.section>
 
-      <div className="mt-6 grid grid-cols-3 rounded-2xl border border-zinc-800 bg-zinc-900/45 p-1 backdrop-blur-xl">
+      {/* Tab bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+        className="profile-tabs"
+        style={{ marginTop: '20px' }}
+        role="tablist"
+        aria-label="Profile content tabs"
+      >
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
+            role="tab"
+            aria-selected={activeTab === tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex h-11 items-center justify-center gap-2 rounded-xl text-label-md font-semibold transition-colors ${
-              activeTab === tab.id
-                ? 'bg-zinc-800 text-zinc-100'
-                : 'text-zinc-500 hover:text-zinc-100'
-            }`}
+            className={`profile-tab${activeTab === tab.id ? ' active' : ''}`}
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
             <tab.icon size={17} />
             {tab.label}
+            {activeTab === tab.id && (
+              <motion.div
+                layoutId="profile-tab-indicator"
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  left: '50%',
+                  height: '2px',
+                  width: '32px',
+                  transform: 'translateX(-50%)',
+                  borderRadius: 'var(--radius-full)',
+                  background: 'var(--color-primary)',
+                }}
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+            )}
           </button>
         ))}
-      </div>
+      </motion.div>
 
-      <div className="mt-5">
+      {/* Post Grid */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3, delay: 0.15 }}
+        style={{ marginTop: '20px' }}
+      >
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="profile-grid">
             {Array.from({ length: 9 }).map((_, index) => (
-              <div key={index} className="aspect-square animate-shimmer rounded-2xl bg-zinc-900" />
+              <div
+                key={index}
+                className="profile-grid-item skeleton-rect"
+                style={{ animationName: 'shimmer' }}
+              />
             ))}
           </div>
         ) : visiblePosts.length ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="profile-grid">
             {visiblePosts.map((post) => (
               <article
                 key={post._id}
-                className="group relative aspect-square overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900"
+                className="profile-grid-item"
               >
                 <img
                   src={post.image}
                   alt={post.caption || 'Profile post'}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-black/0 transition-colors group-hover:bg-black/25" />
+                <div className="profile-grid-overlay">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <span className="text-label-md" style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      fontWeight: 600,
+                      color: 'white',
+                    }}>
+                      <IoHeartOutline size={18} />
+                      {formatCount(post.likes || 0)}
+                    </span>
+                  </div>
+                </div>
               </article>
             ))}
           </div>
@@ -241,7 +350,7 @@ export default function ProfilePage() {
             description="When there is something to show, it will appear in this grid."
           />
         )}
-      </div>
+      </motion.div>
     </FeedLayout>
   );
 }

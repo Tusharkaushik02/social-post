@@ -6,18 +6,22 @@ import { IoCheckmarkCircle, IoEllipsisHorizontal, IoHeart } from 'react-icons/io
 import Avatar from '@/components/ui/Avatar';
 import PostActions from '@/components/post/PostActions';
 import { useAuth } from '@/hooks/useAuth';
-import { formatRelativeTime } from '@/lib/utils';
+import { formatRelativeTime, truncate } from '@/lib/utils';
 import { usePostStore } from '@/stores/usePostStore';
+
+const MAX_CAPTION_PREVIEW = 180;
 
 export default function PostCard({ post }) {
   const { user, isAuthenticated, openAuthModal } = useAuth();
   const { likePost, savePost } = usePostStore();
   const [showHeartPop, setShowHeartPop] = useState(false);
   const [lastTap, setLastTap] = useState(0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const author = post.user || {};
   const authorName = author.displayName || author.username || 'Unknown user';
   const profilePath = `/profile/${author.username || 'unknown'}`;
+  const captionIsLong = post.caption && post.caption.length > MAX_CAPTION_PREVIEW;
 
   const popHeart = () => {
     setShowHeartPop(true);
@@ -62,72 +66,100 @@ export default function PostCard({ post }) {
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.24 }}
-      className="w-full overflow-hidden bg-surface-container-lowest p-4 rounded-lg border-[0.5px] border-outline-variant/30 shadow-card flex gap-4"
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+      className="post-card"
+      style={{ flexDirection: 'row' }}
     >
-      <Link to={profilePath} aria-label={`${authorName}'s profile`} className="shrink-0">
+      {/* Avatar */}
+      <Link to={profilePath} aria-label={`${authorName}'s profile`} style={{ flexShrink: 0 }}>
         <Avatar src={author.avatar} alt={authorName} fallbackName={authorName} size="md" />
       </Link>
 
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <Link to={profilePath} className="truncate text-body-md font-bold text-primary hover:underline">
-              {author.username}
+      {/* Content */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Header */}
+        <div className="post-header">
+          <div className="post-author-info">
+            <Link to={profilePath} className="post-author-name">
+              {authorName}
             </Link>
-            {author.verified && <IoCheckmarkCircle className="shrink-0 text-secondary" size={16} />}
-            <span className="text-on-surface-variant text-label-sm font-label-sm">
+            {author.verified && <IoCheckmarkCircle className="post-verified" size={14} />}
+            <span style={{ flexShrink: 0, color: 'var(--color-outline)' }}>·</span>
+            <span className="post-timestamp">
               {formatRelativeTime(post.createdAt)}
             </span>
           </div>
           <button
             type="button"
-            className="rounded-full p-1.5 text-on-surface-variant transition-colors hover:bg-surface-container-low hover:text-on-surface"
+            className="post-more-btn"
             aria-label="Post options"
           >
-            <IoEllipsisHorizontal size={19} />
+            <IoEllipsisHorizontal size={16} />
           </button>
         </div>
 
+        {/* Caption */}
         {post.caption && (
-          <p className="whitespace-pre-line text-body-md leading-relaxed text-on-surface mb-3">
-            {post.caption}
-          </p>
+          <div className="post-caption">
+            <p style={{ whiteSpace: 'pre-line' }}>
+              {isExpanded || !captionIsLong
+                ? post.caption
+                : truncate(post.caption, MAX_CAPTION_PREVIEW)}
+            </p>
+            {captionIsLong && (
+              <button
+                type="button"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="post-read-more"
+              >
+                {isExpanded ? 'Show less' : 'Read more'}
+              </button>
+            )}
+          </div>
         )}
 
+        {/* Image */}
         {post.image && (
           <button
             type="button"
             onClick={handleImageTap}
-            className="relative block aspect-[4/5] w-full overflow-hidden rounded-lg bg-black text-left sm:aspect-[16/11] mb-3"
+            className="post-image-wrapper"
             aria-label="Post image, double tap to like"
           >
             <img
               src={post.image}
               alt={post.caption || `${authorName}'s post`}
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.018]"
+              className="post-image"
               loading="lazy"
             />
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/12 via-transparent to-transparent" />
+            <div className="post-image-gradient" />
 
             <AnimatePresence>
               {showHeartPop && (
                 <motion.div
                   initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 0] }}
+                  animate={{ scale: [0, 1.15, 1], opacity: [0, 1, 0] }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.74, ease: 'easeOut' }}
-                  className="pointer-events-none absolute inset-0 flex items-center justify-center"
+                  transition={{ duration: 0.7, ease: 'easeOut' }}
+                  style={{
+                    pointerEvents: 'none',
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
                 >
-                  <IoHeart className="text-8xl text-white drop-shadow-2xl" />
+                  <IoHeart style={{ fontSize: '72px', color: '#ffffff', filter: 'drop-shadow(0 4px 16px rgba(0,0,0,0.5))' }} />
                 </motion.div>
               )}
             </AnimatePresence>
           </button>
         )}
 
+        {/* Actions */}
         <PostActions
           post={post}
           onLike={handleLikeToggle}
@@ -136,23 +168,23 @@ export default function PostCard({ post }) {
           onSave={() => savePost(post._id)}
         />
 
-        <div className="mt-4 flex gap-3 items-center pt-3 border-t-[0.5px] border-outline-variant/30">
+        {/* Comment Input */}
+        <div className="post-comment-row">
           <Avatar
             src={user?.avatar}
             fallbackName={user?.displayName || user?.username || 'G'}
             alt="My avatar"
-            size="sm"
+            size="xs"
           />
-          <div className="flex-1 relative">
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              className="w-full bg-surface-container-low border-none rounded-full py-2 px-4 text-body-md font-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:ring-1 focus:ring-secondary/20 focus:bg-surface-container-lowest transition-all duration-200 outline-none"
-              onClick={() => {
-                if (!isAuthenticated) openAuthModal('login');
-              }}
-            />
-          </div>
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            aria-label="Add a comment"
+            className="post-comment-input"
+            onClick={() => {
+              if (!isAuthenticated) openAuthModal('login');
+            }}
+          />
         </div>
       </div>
     </motion.article>

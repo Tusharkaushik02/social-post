@@ -1,4 +1,13 @@
-import { IoLogOutOutline, IoMoonOutline, IoSunnyOutline, IoSyncOutline } from 'react-icons/io5';
+import { motion } from 'framer-motion';
+import {
+  IoLogOutOutline,
+  IoMoonOutline,
+  IoSunnyOutline,
+  IoSyncOutline,
+  IoPersonOutline,
+  IoColorPaletteOutline,
+  IoShieldCheckmarkOutline,
+} from 'react-icons/io5';
 import toast from 'react-hot-toast';
 import Avatar from '@/components/ui/Avatar';
 import Button from '@/components/ui/Button';
@@ -12,6 +21,11 @@ const themeOptions = [
   { value: 'system', label: 'System', icon: IoSyncOutline },
 ];
 
+const cardAnimation = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+};
+
 export default function SettingsPage() {
   const { user, logout } = useAuth();
   const theme = useThemeStore((s) => s.theme);
@@ -24,60 +38,134 @@ export default function SettingsPage() {
 
   return (
     <FeedLayout title="Settings" subtitle="Manage your account preferences">
-      <div className="space-y-5">
-        <section className="rounded-3xl border border-zinc-800/80 bg-zinc-900/55 p-5 shadow-card backdrop-blur-xl">
-          <h2 className="text-headline-md text-zinc-100">Account</h2>
-          <div className="mt-5 flex items-center justify-between gap-4">
-            <div className="flex min-w-0 items-center gap-3">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        {/* Account Section */}
+        <motion.section
+          {...cardAnimation}
+          transition={{ duration: 0.3, delay: 0.05 }}
+          className="settings-section"
+        >
+          <div className="settings-section-header">
+            <div className="settings-icon-badge">
+              <IoPersonOutline size={16} />
+            </div>
+            <h2 className="settings-section-title">Account</h2>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
               <Avatar
                 src={user?.avatar}
                 fallbackName={user?.displayName || user?.username}
                 alt={user?.displayName || user?.username}
                 size="md"
               />
-              <div className="min-w-0">
-                <p className="truncate text-body-md font-semibold text-zinc-100">
+              <div style={{ minWidth: 0 }}>
+                <p className="text-body-md truncate" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>
                   {user?.displayName || user?.username}
                 </p>
-                <p className="truncate text-label-md text-zinc-500">
+                <p className="text-label-md truncate" style={{ color: 'var(--color-on-surface-variant)' }}>
                   {user?.email}
                 </p>
               </div>
             </div>
-            <Button
-              type="button"
-              variant="secondary"
-              leftIcon={<IoLogOutOutline size={18} />}
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
           </div>
-        </section>
 
-        <section className="rounded-3xl border border-zinc-800/80 bg-zinc-900/55 p-5 shadow-card backdrop-blur-xl">
-          <h2 className="text-headline-md text-zinc-100">Theme</h2>
-          <p className="mt-1 text-body-md text-zinc-500">
+          {/* Logout button */}
+          <div style={{ marginTop: '20px', borderTop: '0.5px solid rgba(207, 196, 197, 0.3)', paddingTop: '20px' }}>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="btn btn-danger btn-md btn-full"
+              aria-label="Log out of your account"
+            >
+              <IoLogOutOutline size={18} />
+              Log out
+            </button>
+          </div>
+        </motion.section>
+
+        {/* Theme Section */}
+        <motion.section
+          {...cardAnimation}
+          transition={{ duration: 0.3, delay: 0.12 }}
+          className="settings-section"
+        >
+          <div className="settings-section-header" style={{ marginBottom: '8px' }}>
+            <div className="settings-icon-badge">
+              <IoColorPaletteOutline size={16} />
+            </div>
+            <h2 className="settings-section-title">Theme</h2>
+          </div>
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '20px' }}>
             Choose how SocialPost feels on your device.
           </p>
-          <div className="mt-5 grid grid-cols-3 gap-2">
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
             {themeOptions.map((option) => (
               <button
                 key={option.value}
                 type="button"
                 onClick={() => setTheme(option.value)}
-                className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-2xl border px-3 py-4 text-label-md font-semibold transition-colors ${
-                  theme === option.value
-                    ? 'border-violet-500 bg-violet-500/15 text-violet-200'
-                    : 'border-zinc-800 bg-zinc-950/40 text-zinc-500 hover:bg-zinc-900 hover:text-zinc-100'
-                }`}
+                aria-label={`Set theme to ${option.label}`}
+                aria-pressed={theme === option.value}
+                className={`theme-btn${theme === option.value ? ' active' : ''}`}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minHeight: '96px',
+                  gap: '10px',
+                }}
               >
-                <option.icon size={22} />
+                <option.icon size={24} />
                 {option.label}
               </button>
             ))}
           </div>
-        </section>
+        </motion.section>
+
+        {/* Privacy Section */}
+        <motion.section
+          {...cardAnimation}
+          transition={{ duration: 0.3, delay: 0.19 }}
+          className="settings-section"
+        >
+          <div className="settings-section-header">
+            <div className="settings-icon-badge">
+              <IoShieldCheckmarkOutline size={16} />
+            </div>
+            <h2 className="settings-section-title">Privacy</h2>
+          </div>
+
+          {/* Private account toggle */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            borderRadius: 'var(--radius-md)',
+            background: 'var(--color-surface-container-low)',
+            padding: '14px 16px',
+          }}>
+            <div>
+              <p className="text-body-md" style={{ fontWeight: 500, color: 'var(--color-on-surface)' }}>Private account</p>
+              <p className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', marginTop: '2px' }}>
+                Only approved followers can see your posts
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked="false"
+              aria-label="Toggle private account"
+              className="toggle-switch"
+            >
+              <span className="toggle-knob" />
+            </button>
+          </div>
+        </motion.section>
       </div>
     </FeedLayout>
   );
