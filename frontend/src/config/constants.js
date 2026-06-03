@@ -4,6 +4,8 @@
  */
 
 // ── API Configuration ────────────────────────────────────────────
+// NOTE: Backend runs on http://localhost:3000 without /api prefix
+// Vite proxy handles routing: /api/posts → http://localhost:3000/posts
 export const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 // ── App Metadata ─────────────────────────────────────────────────

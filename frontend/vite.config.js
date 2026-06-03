@@ -21,6 +21,11 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
+        rewrite: (path) => {
+          // Strip '/api' prefix: /api/posts → /posts
+          console.log(`[Vite Proxy] Rewriting: ${path} → ${path.replace(/^\/api/, '')}`);
+          return path.replace(/^\/api/, '');
+        },
       },
     },
   },

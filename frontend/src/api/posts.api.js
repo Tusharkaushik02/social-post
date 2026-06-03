@@ -1,75 +1,111 @@
 /**
  * Posts API
  * Handles post-related HTTP requests.
+ * 
+ * Backend Endpoints Available:
+ * - GET /posts → Returns array of posts (no pagination)
+ * - POST /create-post → Create post with image and caption
+ * 
+ * Note: Advanced features (delete, like, save, etc.) not yet implemented in backend
  */
 import api from '@/lib/axios';
 
 export const postsApi = {
   /**
-   * Fetch paginated feed of posts.
-   * @param {number} page - Page number
-   * @param {number} limit - Posts per page
+   * Fetch all posts (backend returns flat array, ignores pagination params)
+   * 
+   * @param {number} page - IGNORED by backend (kept for frontend compatibility)
+   * @param {number} limit - IGNORED by backend (kept for frontend compatibility)
+   * @returns {Promise} Response with posts array
    */
-  getAll: (page = 1, limit = 10) =>
-    api.get('/posts', { params: { page, limit } }),
-
-  /**
-   * Fetch a single post by ID.
-   * @param {string} id - Post ID
-   */
-  getById: (id) => api.get(`/posts/${id}`),
-
-  /**
-   * Fetch posts by a specific user.
-   * @param {string} username - Username
-   * @param {number} page - Page number
-   */
-  getByUser: (username, page = 1) =>
-    api.get(`/posts/user/${username}`, { params: { page } }),
+  getAll: (page = 1, limit = 10) => {
+    console.log(`[postsApi.getAll] Fetching posts (pagination params ignored by backend)`);
+    return api.get('/posts', { params: { page, limit } });
+  },
 
   /**
    * Create a new post with image upload.
+   * 
+   * Backend expects:
+   * - FormData with 'image' field (file) and 'caption' field (string)
+   * - Responds with { message: string, post: {...} }
+   * 
    * @param {FormData} formData - Form data containing caption and image file
+   * @returns {Promise} Response with created post
    */
-  create: (formData) =>
-    api.post('/create-post', formData, {
+  create: (formData) => {
+    console.log('[postsApi.create] Creating post with FormData');
+    return api.post('/create-post', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    });
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // The following endpoints are NOT YET IMPLEMENTED in the backend
+  // Kept here for reference and to prevent import errors
+  // ─────────────────────────────────────────────────────────────
 
   /**
-   * Delete a post.
-   * @param {string} id - Post ID
+   * @deprecated Not implemented in backend
    */
-  delete: (id) => api.delete(`/posts/${id}`),
+  getById: (id) => {
+    console.warn(`[postsApi.getById] Not implemented in backend. Post ID: ${id}`);
+    return Promise.reject(new Error('Endpoint not implemented: GET /posts/:id'));
+  },
 
   /**
-   * Like a post.
-   * @param {string} id - Post ID
+   * @deprecated Not implemented in backend
    */
-  like: (id) => api.post(`/posts/${id}/like`),
+  getByUser: (username, page = 1) => {
+    console.warn(`[postsApi.getByUser] Not implemented in backend. Username: ${username}`);
+    return Promise.reject(new Error('Endpoint not implemented: GET /posts/user/:username'));
+  },
 
   /**
-   * Unlike a post.
-   * @param {string} id - Post ID
+   * @deprecated Not implemented in backend
    */
-  unlike: (id) => api.delete(`/posts/${id}/like`),
+  delete: (id) => {
+    console.warn(`[postsApi.delete] Not implemented in backend. Post ID: ${id}`);
+    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:id'));
+  },
 
   /**
-   * Save a post to bookmarks.
-   * @param {string} id - Post ID
+   * @deprecated Not implemented in backend
    */
-  save: (id) => api.post(`/posts/${id}/save`),
+  like: (id) => {
+    console.warn(`[postsApi.like] Not implemented in backend. Post ID: ${id}`);
+    return Promise.reject(new Error('Endpoint not implemented: POST /posts/:id/like'));
+  },
 
   /**
-   * Remove a post from bookmarks.
-   * @param {string} id - Post ID
+   * @deprecated Not implemented in backend
    */
-  unsave: (id) => api.delete(`/posts/${id}/save`),
+  unlike: (id) => {
+    console.warn(`[postsApi.unlike] Not implemented in backend. Post ID: ${id}`);
+    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:id/like'));
+  },
 
   /**
-   * Fetch the current user's saved posts.
-   * @param {number} page - Page number
+   * @deprecated Not implemented in backend
    */
-  getSaved: (page = 1) =>
-    api.get('/posts/saved', { params: { page } }),
+  save: (postId) => {
+    console.warn(`[postsApi.save] Not implemented in backend. Post ID: ${postId}`);
+    return Promise.reject(new Error('Endpoint not implemented: POST /posts/:postId/save'));
+  },
+
+  /**
+   * @deprecated Not implemented in backend
+   */
+  unsave: (postId) => {
+    console.warn(`[postsApi.unsave] Not implemented in backend. Post ID: ${postId}`);
+    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:postId/save'));
+  },
+
+  /**
+   * @deprecated Not implemented in backend
+   */
+  getSaved: (page = 1) => {
+    console.warn('[postsApi.getSaved] Not implemented in backend');
+    return Promise.reject(new Error('Endpoint not implemented: GET /posts/saved'));
+  },
 };
