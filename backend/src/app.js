@@ -3,10 +3,12 @@ const dotenv = require('dotenv');
 const multer = require('multer');
 const Post = require('./model/post.model');
 const {uploadImage} = require('./services/storage.service');
+const authRoutes = require('./routes/auth.route');
 
 dotenv.config();
 
 const app = express();
+
 
 // CORS middleware
 app.use((req, res, next) => {
@@ -22,6 +24,8 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 const upload = multer({ storage: multer.memoryStorage() });
+
+app.use("/api/auth", authRoutes);
 
 app.post('/create-post', upload.single('image'), async (req, res) => {
     try {
