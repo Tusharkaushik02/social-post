@@ -12,7 +12,7 @@ function paginate(items, page, limit = PAGE_SIZE) {
 
 /**
  * Normalize posts response from backend
- * Backend returns: Array<post> (not paginated)
+ * Backend returns: { success: true, posts: Array<post> } or Array<post>
  * @param {any} data - Raw response data
  * @returns {Array} Array of posts
  */
@@ -21,7 +21,11 @@ function normalizePosts(data) {
     console.log(`[normalizePosts] Received array of ${data.length} posts`);
     return data;
   }
-  console.warn('[normalizePosts] Expected array, got:', typeof data, data);
+  if (data && typeof data === 'object' && Array.isArray(data.posts)) {
+    console.log(`[normalizePosts] Received ${data.posts.length} posts from response object`);
+    return data.posts;
+  }
+  console.warn('[normalizePosts] Expected array or object with posts array, got:', typeof data, data);
   return [];
 }
 
@@ -42,7 +46,7 @@ export const usePostStore = create((set, get) => ({
   /**
    * Fetch all posts from backend
    * 
-   * Backend: GET /posts → returns Array<post>
+   * Backend: GET /api/posts → returns { success: true, posts: Array<post> }
    * No pagination support in backend (page/limit params ignored)
    */
   fetchPosts: async () => {
@@ -131,9 +135,9 @@ export const usePostStore = create((set, get) => ({
   /**
    * Create a new post
    * 
-   * Backend: POST /create-post
+   * Backend: POST /api/posts/create
    * Expects: FormData with 'image' (file) and 'caption' (string)
-   * Returns: { message: string, post: {...} }
+   * Returns: { success: true, message: string, post: {...} }
    */
   createPost: async ({ caption, imageFile, imagePreview }) => {
     console.log('[usePostStore.createPost] Creating post with caption:', caption);
@@ -167,7 +171,7 @@ export const usePostStore = create((set, get) => ({
 
       const { data } = await postsApi.create(formData);
       
-      // Backend returns: { message: string, post: {...} }
+      // Backend returns: { success: true, message: string, post: {...} }
       const createdPost = data.post || data;
       console.log('[usePostStore.createPost] Post created successfully:', createdPost._id);
       

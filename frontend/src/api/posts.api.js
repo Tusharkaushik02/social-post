@@ -3,10 +3,10 @@
  * Handles post-related HTTP requests.
  * 
  * Backend Endpoints Available:
- * - GET /posts → Returns array of posts (no pagination)
- * - POST /create-post → Create post with image and caption
- * 
- * Note: Advanced features (delete, like, save, etc.) not yet implemented in backend
+ * - GET /api/posts → Returns array of posts
+ * - POST /api/posts/create → Create post with image and caption
+ * - GET /api/posts/:id → Get post by ID
+ * - DELETE /api/posts/:id → Delete post
  */
 import api from '@/lib/axios';
 
@@ -19,7 +19,7 @@ export const postsApi = {
    * @returns {Promise} Response with posts array
    */
   getAll: (page = 1, limit = 10) => {
-    console.log(`[postsApi.getAll] Fetching posts (pagination params ignored by backend)`);
+    console.log(`[postsApi.getAll] Fetching posts from backend`);
     return api.get('/posts', { params: { page, limit } });
   },
 
@@ -28,45 +28,36 @@ export const postsApi = {
    * 
    * Backend expects:
    * - FormData with 'image' field (file) and 'caption' field (string)
-   * - Responds with { message: string, post: {...} }
+   * - Responds with { success: true, post: {...} }
    * 
    * @param {FormData} formData - Form data containing caption and image file
    * @returns {Promise} Response with created post
    */
   create: (formData) => {
     console.log('[postsApi.create] Creating post with FormData');
-    return api.post('/create-post', formData, {
+    return api.post('/posts/create', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
   },
 
-  // ─────────────────────────────────────────────────────────────
-  // The following endpoints are NOT YET IMPLEMENTED in the backend
-  // Kept here for reference and to prevent import errors
-  // ─────────────────────────────────────────────────────────────
-
   /**
-   * @deprecated Not implemented in backend
+   * Get post by ID
+   * @param {string} id - Post ID
+   * @returns {Promise} Response with post data
    */
   getById: (id) => {
-    console.warn(`[postsApi.getById] Not implemented in backend. Post ID: ${id}`);
-    return Promise.reject(new Error('Endpoint not implemented: GET /posts/:id'));
+    console.log(`[postsApi.getById] Fetching post: ${id}`);
+    return api.get(`/posts/${id}`);
   },
 
   /**
-   * @deprecated Not implemented in backend
-   */
-  getByUser: (username, page = 1) => {
-    console.warn(`[postsApi.getByUser] Not implemented in backend. Username: ${username}`);
-    return Promise.reject(new Error('Endpoint not implemented: GET /posts/user/:username'));
-  },
-
-  /**
-   * @deprecated Not implemented in backend
+   * Delete post
+   * @param {string} id - Post ID
+   * @returns {Promise} Response confirmation
    */
   delete: (id) => {
-    console.warn(`[postsApi.delete] Not implemented in backend. Post ID: ${id}`);
-    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:id'));
+    console.log(`[postsApi.delete] Deleting post: ${id}`);
+    return api.delete(`/posts/${id}`);
   },
 
   /**
