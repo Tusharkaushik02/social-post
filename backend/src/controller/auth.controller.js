@@ -1,5 +1,8 @@
 const userModel =require("../model/user.model")
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+
+dotenv.config();
 
 async function registerUser (req,res){
     const {username,email,password} = req.body;
@@ -15,7 +18,7 @@ async function registerUser (req,res){
     })
     const token = jwt.sign(
         { id: user._id, username: user.username },
-         process.env.JWT_SECRET, { expiresIn: '1h' });
+         process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
     res.status(201).json({ message: 'User registered successfully', user, token });
 }
 
