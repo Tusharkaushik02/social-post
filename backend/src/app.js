@@ -1,20 +1,15 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const corsMiddleware = require('./middleware/cors');
-const errorHandler = require('./middleware/errorHandler');
-const requestLogger = require('./middleware/requestLogger');
 const authRoutes = require('./routes/auth.route');
 const postRoutes = require('./routes/post.route');
+const { applyMiddleware } = require('./index');
+const errorHandler = require('./middleware/errorHandler');
 
 dotenv.config();
 
 const app = express();
-
-// Middleware
-app.use(requestLogger);
-app.use(corsMiddleware);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+ // Apply all middleware
+applyMiddleware(app);
 
 // Health check endpoint
 app.get('/health', (req, res) => {

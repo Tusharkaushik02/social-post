@@ -4,6 +4,7 @@ const { uploadImage } = require('../services/storage.service');
 // Create a new post
 exports.createPost = async (req, res) => {
     try {
+        
         const { caption } = req.body;
 
         // Validation
