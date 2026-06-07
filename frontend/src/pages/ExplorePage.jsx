@@ -6,7 +6,6 @@ import FeedLayout from '@/components/layout/FeedLayout';
 import PostCard from '@/components/post/PostCard';
 import EmptyState from '@/components/common/EmptyState';
 import Input from '@/components/ui/Input';
-import { mockPosts } from '@/data/mockData';
 import { usePostStore } from '@/stores/usePostStore';
 
 const filterPills = [
@@ -27,22 +26,22 @@ export default function ExplorePage() {
     if (!posts.length) fetchPosts();
   }, [fetchPosts, posts.length]);
 
-  const sourcePosts = posts.length ? posts : mockPosts;
   const filteredPosts = useMemo(() => {
     const term = query.trim().toLowerCase();
-    if (!term) return sourcePosts;
-    return sourcePosts.filter((post) => {
+    if (!term) return posts;
+    return posts.filter((post) => {
+      const author = post.User || post.user || {};
       const haystack = [
         post.caption,
-        post.user?.username,
-        post.user?.displayName,
+        author.username,
+        author.displayName || author.displayname,
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase();
       return haystack.includes(term);
     });
-  }, [query, sourcePosts]);
+  }, [query, posts]);
 
   const handleSubmit = (event) => {
     event.preventDefault();

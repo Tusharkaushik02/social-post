@@ -18,9 +18,16 @@ export default function PostCard({ post }) {
   const [lastTap, setLastTap] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const author = post.user || {};
-  const authorName = author.displayName || author.username || 'Unknown user';
-  const profilePath = `/profile/${author.username || 'unknown'}`;
+  // Backend uses 'User' (capital U) for the populated user reference
+  const rawAuthor = post.User || post.user || {};
+  const author = {
+    ...rawAuthor,
+    displayName: rawAuthor.displayName || rawAuthor.displayname || rawAuthor.username || 'Unknown user',
+    avatar: rawAuthor.avatar || rawAuthor.avatarUrl || '',
+    username: rawAuthor.username || 'unknown',
+  };
+  const authorName = author.displayName;
+  const profilePath = `/profile/${author.username}`;
   const captionIsLong = post.caption && post.caption.length > MAX_CAPTION_PREVIEW;
 
   const popHeart = () => {

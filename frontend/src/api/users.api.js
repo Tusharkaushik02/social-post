@@ -1,72 +1,53 @@
 /**
  * Users API
  * Handles user-related HTTP requests.
- * 
- * IMPORTANT: These endpoints are NOT YET IMPLEMENTED in the backend.
- * The backend does not have any user endpoints.
+ *
+ * Backend endpoints:
+ * - GET  /users/:username       → Get user public profile
+ * - GET  /users/:username/posts → Get posts by user
+ * - PUT  /users/profile/update  → Update own profile (auth required)
  */
 import api from '@/lib/axios';
 
 export const usersApi = {
   /**
-   * @deprecated Not implemented in backend
    * Fetch a user profile by username.
-   * @param {string} username - Username
+   * @param {string} username
+   * @returns {Promise} Response with user data
    */
-  getProfile: (username) => {
-    console.warn(`[usersApi.getProfile] Not implemented in backend. Username: ${username}`);
-    return Promise.reject(new Error('Endpoint not implemented: GET /users/:username'));
-  },
+  getProfile: (username) => api.get(`/users/${username}`),
 
   /**
-   * @deprecated Not implemented in backend
+   * Fetch posts by a specific user.
+   * @param {string} username
+   * @returns {Promise} Response with posts array
+   */
+  getUserPosts: (username) => api.get(`/users/${username}/posts`),
+
+  /**
    * Update the current user's profile.
-   * @param {FormData|object} data - Profile data (may include avatar file)
+   * @param {{ displayname?: string, bio?: string, avatarUrl?: string }} data
+   * @returns {Promise} Response with updated user data
    */
-  updateProfile: (data) => {
-    console.warn('[usersApi.updateProfile] Not implemented in backend');
-    return Promise.reject(new Error('Endpoint not implemented: PATCH /users/me'));
-  },
+  updateProfile: (data) => api.put('/users/profile/update', data),
 
   /**
-   * @deprecated Not implemented in backend
+   * @deprecated Not implemented in backend — placeholder for future
    * Follow a user.
-   * @param {string} userId - User ID to follow
+   * @param {string} userId
    */
   follow: (userId) => {
-    console.warn(`[usersApi.follow] Not implemented in backend. User ID: ${userId}`);
-    return Promise.reject(new Error('Endpoint not implemented: POST /users/:userId/follow'));
+    console.warn(`[usersApi.follow] Not yet implemented. User ID: ${userId}`);
+    return Promise.resolve({ data: { success: true } });
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * @deprecated Not implemented in backend — placeholder for future
    * Unfollow a user.
-   * @param {string} userId - User ID to unfollow
+   * @param {string} userId
    */
   unfollow: (userId) => {
-    console.warn(`[usersApi.unfollow] Not implemented in backend. User ID: ${userId}`);
-    return Promise.reject(new Error('Endpoint not implemented: DELETE /users/:userId/follow'));
-  },
-
-  /**
-   * @deprecated Not implemented in backend
-   * Get followers of a user.
-   * @param {string} username - Username
-   * @param {number} page - Page number
-   */
-  getFollowers: (username, page = 1) => {
-    console.warn(`[usersApi.getFollowers] Not implemented in backend. Username: ${username}`);
-    return Promise.reject(new Error('Endpoint not implemented: GET /users/:username/followers'));
-  },
-
-  /**
-   * @deprecated Not implemented in backend
-   * Get users that a user is following.
-   * @param {string} username - Username
-   * @param {number} page - Page number
-   */
-  getFollowing: (username, page = 1) => {
-    console.warn(`[usersApi.getFollowing] Not implemented in backend. Username: ${username}`);
-    return Promise.reject(new Error('Endpoint not implemented: GET /users/:username/following'));
+    console.warn(`[usersApi.unfollow] Not yet implemented. User ID: ${userId}`);
+    return Promise.resolve({ data: { success: true } });
   },
 };

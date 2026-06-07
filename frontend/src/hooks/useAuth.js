@@ -3,7 +3,6 @@ import { useUIStore } from '@/stores/useUIStore';
 
 export function useAuth() {
   const user = useAuthStore((s) => s.user);
-  const token = useAuthStore((s) => s.token);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
   const error = useAuthStore((s) => s.error);
@@ -31,7 +30,6 @@ export function useAuth() {
 
   return {
     user,
-    token,
     isAuthenticated,
     isLoading,
     error,

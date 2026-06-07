@@ -8,6 +8,7 @@
  * Route types:
  * - Public: Accessible to all users (feed, explore, profiles)
  * - Protected: Requires authentication (saved posts, settings)
+ * - Auth: Login/signup pages (no app layout wrapper)
  */
 /* eslint-disable react-refresh/only-export-components */
 import { lazy, Suspense } from 'react';
@@ -25,6 +26,8 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const SavedPage = lazy(() => import('@/pages/SavedPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const LoginPage = lazy(() => import('@/pages/LoginPage'));
+const SignupPage = lazy(() => import('@/pages/SignupPage'));
 
 function RouteLoader() {
   return (
@@ -39,6 +42,17 @@ function withSuspense(element) {
 }
 
 const router = createBrowserRouter([
+  // ── Auth Pages (no AppLayout wrapper) ───────────────────────────
+  {
+    path: ROUTES.LOGIN,
+    element: withSuspense(<LoginPage />),
+  },
+  {
+    path: ROUTES.SIGNUP,
+    element: withSuspense(<SignupPage />),
+  },
+
+  // ── Main App (with AppLayout) ──────────────────────────────────
   {
     element: <AppLayout />,
     children: [

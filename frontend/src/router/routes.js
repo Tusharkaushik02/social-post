@@ -12,6 +12,8 @@ export const ROUTES = {
   PROFILE: '/profile/:username',
   SAVED: '/saved',
   SETTINGS: '/settings',
+  LOGIN: '/login',
+  SIGNUP: '/signup',
 };
 
 /**

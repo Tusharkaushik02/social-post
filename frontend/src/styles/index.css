@@ -1343,3 +1343,111 @@ input, textarea, select { font: inherit; }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
 .hidden { display: none; }
+
+/* ─── Auth Pages (Login / Signup) ───────────────────────────── */
+.auth-page {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  background: var(--color-background);
+  overflow: hidden;
+}
+
+.auth-page-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.auth-page-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+}
+
+.auth-page-orb-1 {
+  top: -10%;
+  right: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 88, 188, 0.12), transparent 70%);
+  animation: auth-orb-float 12s ease-in-out infinite;
+}
+
+.auth-page-orb-2 {
+  bottom: -15%;
+  left: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.06), transparent 70%);
+  animation: auth-orb-float 15s ease-in-out infinite reverse;
+}
+
+.auth-page-orb-3 {
+  top: 40%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(94, 92, 230, 0.08), transparent 70%);
+  animation: auth-orb-float 10s ease-in-out infinite 3s;
+}
+
+@keyframes auth-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -30px) scale(1.05); }
+  66% { transform: translate(-15px, 15px) scale(0.95); }
+}
+
+.auth-page-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+  border: 0.5px solid rgba(207, 196, 197, 0.3);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-elevated);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (max-width: 480px) {
+  .auth-page-card {
+    padding: 24px 20px;
+    border-radius: var(--radius-lg);
+  }
+}
+
+.auth-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.auth-page-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: -0.01em;
+}

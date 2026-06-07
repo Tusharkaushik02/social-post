@@ -13,6 +13,7 @@ import { API_BASE_URL, STORAGE_KEYS } from '@/config/constants';
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 15000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -22,38 +23,14 @@ const api = axios.create({
 // Attaches Bearer token to every outgoing request + detailed logging
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    
-    // Detailed request logging
-    const logInfo = {
+    // Cookies are sent automatically via withCredentials — no manual token handling
+    console.log('[API Request]', {
       method: config.method?.toUpperCase(),
       url: config.url,
       fullUrl: `${config.baseURL}${config.url}`,
       params: config.params,
-      hasToken: !!token,
       timestamp: new Date().toISOString(),
-    };
-    
-    if (config.data instanceof FormData) {
-      logInfo.data = '[FormData]';
-      // Log FormData entries for debugging
-      const entries = [];
-      for (let [key, value] of config.data.entries()) {
-        if (value instanceof File) {
-          entries.push(`${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
-        } else {
-          entries.push(`${key}: ${value}`);
-        }
-      }
-      logInfo.formDataEntries = entries;
-    } else {
-      logInfo.data = config.data;
-    }
-    
-    console.log('[API Request]', logInfo);
+    });
     return config;
   },
   (error) => {
@@ -93,27 +70,17 @@ api.interceptors.response.use(
     
     console.error('[API Error Response]', errorInfo);
 
-    // Handle 401 — user's token is invalid or expired
+    // Handle 401 — user's session is invalid or expired
     if (error.response?.status === 401) {
-      console.warn('[API] Unauthorized (401) - Clearing token and redirecting to login');
-      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      console.warn('[API] Unauthorized (401) — session expired');
 
       // Defer store imports to avoid circular dependencies during render
       Promise.resolve().then(() => {
         import('@/stores/useAuthStore').then(({ useAuthStore }) => {
           try {
-            const { logout } = useAuthStore.getState();
-            logout();
+            useAuthStore.getState().clearSession();
           } catch (e) {
-            console.error('[API] Error calling logout:', e);
-          }
-        });
-        
-        import('@/stores/useUIStore').then(({ useUIStore }) => {
-          try {
-            useUIStore.getState().openAuthModal('login');
-          } catch (e) {
-            console.error('[API] Error opening auth modal:', e);
+            console.error('[API] Error clearing session:', e);
           }
         });
       });

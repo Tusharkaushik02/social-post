@@ -15,7 +15,6 @@ import Button from '@/components/ui/Button';
 import EmptyState from '@/components/common/EmptyState';
 import FeedLayout from '@/components/layout/FeedLayout';
 import ProtectedAction from '@/components/common/ProtectedAction';
-import { mockUsers } from '@/data/mockData';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCount } from '@/lib/utils';
 import { usePostStore } from '@/stores/usePostStore';
@@ -35,11 +34,25 @@ function formatJoinDate(date) {
   })}`;
 }
 
+/**
+ * Normalize backend user profile fields to what the UI expects.
+ * Backend model: displayname, avatarUrl
+ * UI expects: displayName, avatar
+ */
+function normalizeProfile(raw) {
+  return {
+    ...raw,
+    displayName: raw.displayName || raw.displayname || raw.username || '',
+    avatar: raw.avatar || raw.avatarUrl || '',
+  };
+}
+
 export default function ProfilePage() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
   const { profilePosts, isLoading, fetchPostsByUser } = usePostStore();
   const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
 
@@ -49,27 +62,29 @@ export default function ProfilePage() {
     let active = true;
 
     async function loadProfile() {
+      setProfileLoading(true);
       try {
         const { data } = await usersApi.getProfile(username);
         if (!active) return;
-        const nextProfile = data.user || data;
+        const nextProfile = normalizeProfile(data.user || data);
         setProfile(nextProfile);
         setIsFollowing(Boolean(nextProfile.isFollowing));
       } catch {
         if (!active) return;
-        const fallback = mockUsers.find((item) => item.username === username) || {
+        // No mock fallback — show minimal data from URL
+        setProfile({
           _id: `profile-${username}`,
           username,
           displayName: username,
-          bio: 'Social Post member',
+          bio: '',
           followers: 0,
           following: 0,
           postsCount: 0,
           isFollowing: false,
-          joinedAt: new Date().toISOString(),
-        };
-        setProfile(fallback);
-        setIsFollowing(Boolean(fallback.isFollowing));
+          joinedAt: null,
+        });
+      } finally {
+        if (active) setProfileLoading(false);
       }
     }
 
