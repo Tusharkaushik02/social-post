@@ -1,7 +1,7 @@
 const jwt= require("jsonwebtoken");
-
+const userModel = require('../model/user.model');
 // Middleware to protect routes
-function authMiddleware(req, res, next) {
+async function authMiddleware(req, res, next) {
     const token = req.cookies.token;
     if (!token) {
         return res.status(401).json({
@@ -12,6 +12,13 @@ function authMiddleware(req, res, next) {
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
+        const user= await userModel.findOne({_id:decoded.id});
+        if(!user){
+            return res.status(401).json({
+                success: false,
+                error: 'Unauthorized' 
+            });
+        }
         next();
     } catch (err) {
         return res.status(401).json({
