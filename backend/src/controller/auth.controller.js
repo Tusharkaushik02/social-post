@@ -1,36 +1,23 @@
-const userModel =require("../model/user.model")
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+const { registerUser } = require('./register.controller');
+const { loginUser } = require('./login.controller');
+const userModel = require('../model/user.model');
 
-dotenv.config();
-
-async function registerUser (req,res){
-    const {username,email,password} = req.body;
-
-    if(!username || !email || !password){
-        return res.status(400).json({error:"All fields are required"})
+async function getMe(req, res) {
+    try {
+        const user = await userModel.findById(req.user.id).select('-passwordHash');
+        if (!user) {
+            return res.status(404).json({ success: false, error: 'User not found' });
+        }
+        return res.json({ success: true, user });
+    } catch (error) {
+        console.error('Error fetching current user:', error);
+        return res.status(500).json({ success: false, error: 'Failed to fetch user' });
     }
-    const existingUser = await userModel.findOne({ email });
-    if (existingUser) {
-        return res.status(409).json({ error: 'Email already in use' });
-    }
-    if(email.length < 5 || !email.includes('@')){
-        return res.status(400).json({ error: 'Invalid email format' });
-    }
-
-    const user = await userModel.create({
-        username,
-        email,
-        passwordHash: password
-    })
-    const token = jwt.sign(
-        { id: user._id, username: user.username },
-         process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
-         res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-        });
-    res.status(201).json({ message: 'User registered successfully', user, token });
 }
 
-module.exports = { registerUser };
+function logoutUser(req, res) {
+    res.clearCookie('token');
+    return res.json({ success: true, message: 'Logged out successfully' });
+}
+
+module.exports = { registerUser, loginUser, getMe, logoutUser };

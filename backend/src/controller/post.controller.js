@@ -6,7 +6,7 @@ exports.createPost = async (req, res) => {
     try {
         
         const { caption } = req.body;
-
+       
         // Validation
         if (!caption) {
             return res.status(400).json({ 
@@ -28,7 +28,8 @@ exports.createPost = async (req, res) => {
         // Create and save post
         const post = new Post({
             caption,
-            image: result
+            image: result,
+            User: req.user.id
         });
 
         await post.save();
@@ -50,7 +51,7 @@ exports.createPost = async (req, res) => {
 // Get all posts
 exports.getAllPosts = async (req, res) => {
     try {
-        const posts = await Post.find().sort({ createdAt: -1 });
+        const posts = await Post.find().populate('User', 'username displayname avatarUrl').sort({ createdAt: -1 });
         res.status(200).json({
             success: true,
             posts
@@ -68,7 +69,7 @@ exports.getAllPosts = async (req, res) => {
 exports.getPostById = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id);
+        const post = await Post.findById(id).populate('User', 'username displayname avatarUrl');
 
         if (!post) {
             return res.status(404).json({ 
@@ -94,7 +95,7 @@ exports.getPostById = async (req, res) => {
 exports.deletePost = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findByIdAndDelete(id);
+        const post = await Post.findById(id);
 
         if (!post) {
             return res.status(404).json({ 
@@ -102,6 +103,14 @@ exports.deletePost = async (req, res) => {
                 error: 'Post not found' 
             });
         }
+        if (post.User.toString() !== req.user.id) {
+            return res.status(403).json({ 
+                success: false,
+                error: 'Unauthorized to delete this post' 
+            });
+        }
+
+        await Post.findByIdAndDelete(id);
 
         res.status(200).json({
             success: true,
