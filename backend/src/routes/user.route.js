@@ -9,13 +9,13 @@ const {
 
 const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/:username", getUserByUsername);
-
-router.get("/:username/posts", getUserPosts);
-
 router.put("/profile/update",
     authMiddleware,
     updateProfile
 );
+
+router.get("/:username", getUserByUsername);
+
+router.get("/:username/posts", getUserPosts);
 
 module.exports = router;

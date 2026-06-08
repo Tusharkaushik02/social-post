@@ -64,7 +64,7 @@ exports.updateProfile = async (req, res) => {
         const updateData = {};
 
         if (displayName !== undefined) {
-            updateData.displayName = displayName;
+            updateData.displayname = displayName;
         }
 
         if (bio !== undefined) {
@@ -72,7 +72,7 @@ exports.updateProfile = async (req, res) => {
         }
 
         if (avatar !== undefined) {
-            updateData.avatar = avatar;
+            updateData.avatarUrl = avatar;
         }
 
         const updatedUser = await User.findByIdAndUpdate(
