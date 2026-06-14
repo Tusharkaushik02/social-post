@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const postController = require('../controller/post.controller');
 const authMiddleware = require('../middleware/authMiddleware');
+const {toggleLike,getLikedUsers} = require('../controller/like.controller');
 
 const router = express.Router();
 
@@ -21,5 +22,9 @@ router.get('/:id', authMiddleware,
     
 router.delete('/:id', authMiddleware,
     postController.deletePost);
+
+router.post('/:id/like', authMiddleware, toggleLike);
+
+router.get('/:id/likes', getLikedUsers);
 
 module.exports = router;
