@@ -118,7 +118,8 @@ export const usePostStore = create((set, get) => ({
       User: null,
       caption,
       image: imagePreview,
-      likes: 0,
+      likesCount: 0,
+      isLiked: false,
       createdAt: new Date().toISOString(),
     };
 
@@ -152,21 +153,60 @@ export const usePostStore = create((set, get) => ({
   },
 
   /**
-   * Like/unlike a post
-   * Backend doesn't support like endpoint — optimistic only
+   * Like/unlike a post (toggle)
+   * POST /api/posts/:id/like
+   * 
+   * 1. Optimistic update (toggle isLiked, update likesCount)
+   * 2. Call postsApi.like(postId)
+   * 3. On error, rollback optimistic update
    */
   likePost: async (postId) => {
+    const { posts, savedPosts, profilePosts } = get();
+    
+    // Helper to create optimistic update
     const apply = (post) => ({
       ...post,
       isLiked: !post.isLiked,
-      likes: Math.max(0, (post.likes || 0) + (post.isLiked ? -1 : 1)),
+      likesCount: Math.max(0, (post.likesCount || 0) + (post.isLiked ? -1 : 1)),
     });
-
-    set((state) => ({
-      posts: updatePost(state.posts, postId, apply),
-      savedPosts: updatePost(state.savedPosts, postId, apply),
-      profilePosts: updatePost(state.profilePosts, postId, apply),
-    }));
+    
+    // Store previous state for rollback
+    const previousState = {
+      posts: posts.map(p => p._id === postId ? apply(p) : p),
+      savedPosts: savedPosts.map(p => p._id === postId ? apply(p) : p),
+      profilePosts: profilePosts.map(p => p._id === postId ? apply(p) : p),
+    };
+    
+    // 1. Optimistic update
+    set(previousState);
+    
+    try {
+      // 2. Call API to toggle like
+      console.log(`[usePostStore.likePost] Toggling like for post: ${postId}`);
+      await postsApi.like(postId);
+      console.log(`[usePostStore.likePost] Successfully toggled like for post: ${postId}`);
+    } catch (error) {
+      // 3. Rollback on error
+      console.error('[usePostStore.likePost] Error:', error.message);
+      set({
+        posts: updatePost(posts, postId, post => ({
+          ...post,
+          isLiked: !post.isLiked,
+          likesCount: Math.max(0, (post.likesCount || 0) + (post.isLiked ? -1 : 1)),
+        })),
+        savedPosts: updatePost(savedPosts, postId, post => ({
+          ...post,
+          isLiked: !post.isLiked,
+          likesCount: Math.max(0, (post.likesCount || 0) + (post.isLiked ? -1 : 1)),
+        })),
+        profilePosts: updatePost(profilePosts, postId, post => ({
+          ...post,
+          isLiked: !post.isLiked,
+          likesCount: Math.max(0, (post.likesCount || 0) + (post.isLiked ? -1 : 1)),
+        })),
+      });
+      throw error;
+    }
   },
 
   /**

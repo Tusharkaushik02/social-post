@@ -61,19 +61,24 @@ export const postsApi = {
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * Toggle like on a post (same endpoint for like and unlike)
+   * POST /api/posts/:id/like
+   * @param {string} id - Post ID
+   * @returns {Promise} Response with updated post
    */
   like: (id) => {
-    console.warn(`[postsApi.like] Not implemented in backend. Post ID: ${id}`);
-    return Promise.reject(new Error('Endpoint not implemented: POST /posts/:id/like'));
+    console.log(`[postsApi.like] Toggling like on post: ${id}`);
+    return api.post(`/posts/${id}/like`);
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * Alias for like (same endpoint, toggle behavior)
+   * @param {string} id - Post ID
+   * @returns {Promise} Response with updated post
    */
   unlike: (id) => {
-    console.warn(`[postsApi.unlike] Not implemented in backend. Post ID: ${id}`);
-    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:id/like'));
+    console.log(`[postsApi.unlike] Toggling unlike on post: ${id}`);
+    return api.post(`/posts/${id}/like`);
   },
 
   /**
