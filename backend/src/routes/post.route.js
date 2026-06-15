@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const postController = require('../controller/post.controller');
 const authMiddleware = require('../middleware/authMiddleware');
+const optionalAuthMiddleware = require('../middleware/optionalAuth');
 const {toggleLike,getLikedUsers} = require('../controller/like.controller');
 
 const router = express.Router();
@@ -15,9 +16,9 @@ router.post('/create',
     upload.single('image'),
     postController.createPost);
 
-router.get('/', postController.getAllPosts);
+router.get('/', optionalAuthMiddleware, postController.getAllPosts);
 
-router.get('/:id', authMiddleware,
+router.get('/:id', optionalAuthMiddleware,
     postController.getPostById);
     
 router.delete('/:id', authMiddleware,

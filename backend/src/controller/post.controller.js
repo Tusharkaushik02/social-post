@@ -1,6 +1,16 @@
 const Post = require('../model/post.model');
 const { uploadImage } = require('../services/storage.service');
 
+// Helper function to transform post with likes info
+const transformPostWithLikes = (post, currentUserId) => {
+    const postObj = post.toObject ? post.toObject() : post;
+    return {
+        ...postObj,
+        likesCount: postObj.likes ? postObj.likes.length : 0,
+        isLiked: currentUserId && postObj.likes ? postObj.likes.includes(currentUserId) : false
+    };
+};
+
 // Create a new post
 exports.createPost = async (req, res) => {
     try {
@@ -52,9 +62,15 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
     try {
         const posts = await Post.find().populate('User', 'username displayname avatarUrl').sort({ createdAt: -1 });
+        
+        // Transform posts to include likesCount and isLiked
+        const transformedPosts = posts.map(post => 
+            transformPostWithLikes(post, req.user ? req.user.id : null)
+        );
+        
         res.status(200).json({
             success: true,
-            posts
+            posts: transformedPosts
         });
     } catch (error) {
         console.error('Error fetching posts:', error);
@@ -78,9 +94,12 @@ exports.getPostById = async (req, res) => {
             });
         }
 
+        // Transform post to include likesCount and isLiked
+        const transformedPost = transformPostWithLikes(post, req.user ? req.user.id : null);
+
         res.status(200).json({
             success: true,
-            post
+            post: transformedPost
         });
     } catch (error) {
         console.error('Error fetching post:', error);
