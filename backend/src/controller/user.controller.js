@@ -15,9 +15,23 @@ exports.getUserByUsername = async (req, res) => {
             });
         }
 
+        const followersCount = user.followers.length;
+        const followingCount = user.following.length;
+        
+        let isFollowing =false;
+
+         if (req.user) {
+            isFollowing = user.followers.some(
+                followerId => followerId.toString() === req.user.id
+            );
+        }
+
         res.status(200).json({
             success: true,
-            user
+            user,
+            followersCount,
+            followingCount,
+            isFollowing
         });
 
     } catch (error) {
@@ -26,6 +40,48 @@ exports.getUserByUsername = async (req, res) => {
         res.status(500).json({
             success: false,
             error: "Failed to fetch user"
+        });
+    }
+};
+
+exports.getSuggestions = async (req, res) => {
+    try {
+        const limit = Math.min(Number(req.query.limit) || 4, 12);
+        const currentUser = await User.findById(req.user.id).select("following");
+
+        if (!currentUser) {
+            return res.status(404).json({
+                success: false,
+                error: "User not found"
+            });
+        }
+
+        const excludedIds = [currentUser._id, ...currentUser.following];
+        const suggestions = await User.aggregate([
+            { $match: { _id: { $nin: excludedIds } } },
+            { $sample: { size: limit } },
+            {
+                $project: {
+                    username: 1,
+                    displayname: 1,
+                    avatarUrl: 1,
+                    bio: 1,
+                    followersCount: { $size: "$followers" },
+                    followingCount: { $size: "$following" }
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            success: true,
+            users: suggestions
+        });
+    } catch (error) {
+        console.error("Error fetching user suggestions:", error);
+
+        res.status(500).json({
+            success: false,
+            error: "Failed to fetch user suggestions"
         });
     }
 };
