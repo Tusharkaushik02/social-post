@@ -225,6 +225,19 @@ export const usePostStore = create((set, get) => ({
     }));
   },
 
+  updateCommentsCount: (postId, amount) => {
+    const apply = (post) => ({
+      ...post,
+      commentsCount: Math.max(0, (post.commentsCount || 0) + amount),
+    });
+
+    set((state) => ({
+      posts: updatePost(state.posts, postId, apply),
+      savedPosts: updatePost(state.savedPosts, postId, apply),
+      profilePosts: updatePost(state.profilePosts, postId, apply),
+    }));
+  },
+
   resetFeed: () => {
     set({
       posts: [],

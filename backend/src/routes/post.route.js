@@ -4,6 +4,7 @@ const postController = require('../controller/post.controller');
 const authMiddleware = require('../middleware/authMiddleware');
 const optionalAuthMiddleware = require('../middleware/optionalAuth');
 const {toggleLike,getLikedUsers} = require('../controller/like.controller');
+const {getCommentsByPost, createComment} = require('../controller/comment.controller');
 
 const router = express.Router();
 
@@ -27,5 +28,9 @@ router.delete('/:id', authMiddleware,
 router.post('/:id/like', authMiddleware, toggleLike);
 
 router.get('/:id/likes', getLikedUsers);
+
+router.get('/:id/comments', getCommentsByPost);
+
+router.post('/:id/comments', authMiddleware, createComment);
 
 module.exports = router;

@@ -1,13 +1,16 @@
 const Post = require('../model/post.model');
+const Comment = require('../model/comment.model');
 const { uploadImage } = require('../services/storage.service');
 
 // Helper function to transform post with likes info
-const transformPostWithLikes = (post, currentUserId) => {
+const transformPostWithCounts = async (post, currentUserId) => {
     const postObj = post.toObject ? post.toObject() : post;
+    const commentsCount = await Comment.countDocuments({ post: postObj._id });
     return {
         ...postObj,
         likesCount: postObj.likes ? postObj.likes.length : 0,
-        isLiked: currentUserId && postObj.likes ? postObj.likes.includes(currentUserId) : false
+        commentsCount,
+        isLiked: currentUserId && postObj.likes ? postObj.likes.some((id) => id.toString() === currentUserId) : false
     };
 };
 
@@ -64,9 +67,9 @@ exports.getAllPosts = async (req, res) => {
         const posts = await Post.find().populate('User', 'username displayname avatarUrl').sort({ createdAt: -1 });
         
         // Transform posts to include likesCount and isLiked
-        const transformedPosts = posts.map(post => 
-            transformPostWithLikes(post, req.user ? req.user.id : null)
-        );
+        const transformedPosts = await Promise.all(posts.map(post =>
+            transformPostWithCounts(post, req.user ? req.user.id : null)
+        ));
         
         res.status(200).json({
             success: true,
@@ -95,7 +98,7 @@ exports.getPostById = async (req, res) => {
         }
 
         // Transform post to include likesCount and isLiked
-        const transformedPost = transformPostWithLikes(post, req.user ? req.user.id : null);
+        const transformedPost = await transformPostWithCounts(post, req.user ? req.user.id : null);
 
         res.status(200).json({
             success: true,
