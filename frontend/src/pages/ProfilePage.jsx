@@ -39,11 +39,16 @@ function formatJoinDate(date) {
  * Backend model: displayname, avatarUrl
  * UI expects: displayName, avatar
  */
-function normalizeProfile(raw) {
+function normalizeProfile(payload) {
+  const raw = payload?.user || payload || {};
   return {
     ...raw,
     displayName: raw.displayName || raw.displayname || raw.username || '',
     avatar: raw.avatar || raw.avatarUrl || '',
+    followersCount: payload?.followersCount ?? raw.followersCount ?? raw.followers?.length ?? 0,
+    followingCount: payload?.followingCount ?? raw.followingCount ?? raw.following?.length ?? 0,
+    isFollowing: Boolean(payload?.isFollowing ?? raw.isFollowing),
+    joinedAt: raw.joinedAt || raw.createdAt || null,
   };
 }
 
@@ -54,6 +59,7 @@ export default function ProfilePage() {
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isFollowPending, setIsFollowPending] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
 
   const isOwnProfile = currentUser?.username === username;
@@ -66,7 +72,7 @@ export default function ProfilePage() {
       try {
         const { data } = await usersApi.getProfile(username);
         if (!active) return;
-        const nextProfile = normalizeProfile(data.user || data);
+        const nextProfile = normalizeProfile(data);
         setProfile(nextProfile);
         setIsFollowing(Boolean(nextProfile.isFollowing));
       } catch {
@@ -77,8 +83,8 @@ export default function ProfilePage() {
           username,
           displayName: username,
           bio: '',
-          followers: 0,
-          following: 0,
+          followersCount: 0,
+          followingCount: 0,
           postsCount: 0,
           isFollowing: false,
           joinedAt: null,
@@ -98,8 +104,8 @@ export default function ProfilePage() {
   const stats = useMemo(
     () => [
       { label: 'Posts', value: profilePosts.length || profile?.postsCount || 0 },
-      { label: 'Followers', value: profile?.followers || 0 },
-      { label: 'Following', value: profile?.following || 0 },
+      { label: 'Followers', value: profile?.followersCount || 0 },
+      { label: 'Following', value: profile?.followingCount || 0 },
     ],
     [profile, profilePosts.length]
   );
@@ -111,23 +117,55 @@ export default function ProfilePage() {
   }, [activeTab, profilePosts]);
 
   const handleFollow = async () => {
+    if (!profile?._id || isFollowPending) return;
+
     const next = !isFollowing;
+    const previousFollowing = isFollowing;
+    const previousFollowersCount = profile.followersCount || 0;
+
+    setIsFollowPending(true);
     setIsFollowing(next);
     setProfile((value) =>
       value
         ? {
             ...value,
-            followers: Math.max(0, (value.followers || 0) + (next ? 1 : -1)),
+            isFollowing: next,
+            followersCount: Math.max(0, (value.followersCount || 0) + (next ? 1 : -1)),
           }
         : value
     );
 
     try {
-      if (next) await usersApi.follow(profile._id);
-      else await usersApi.unfollow(profile._id);
-      toast.success(next ? 'Following user' : 'Unfollowed user');
+      const { data } = next
+        ? await usersApi.follow(profile._id)
+        : await usersApi.unfollow(profile._id);
+      const confirmedFollowing = Boolean(data.following);
+
+      setIsFollowing(confirmedFollowing);
+      setProfile((value) =>
+        value
+          ? {
+              ...value,
+              isFollowing: confirmedFollowing,
+              followersCount: data.followersCount ?? value.followersCount,
+            }
+          : value
+      );
+      toast.success(confirmedFollowing ? 'Following user' : 'Unfollowed user');
     } catch {
-      toast.success(next ? 'Following user' : 'Unfollowed user');
+      setIsFollowing(previousFollowing);
+      setProfile((value) =>
+        value
+          ? {
+              ...value,
+              isFollowing: previousFollowing,
+              followersCount: previousFollowersCount,
+            }
+          : value
+      );
+      toast.error('Could not update follow status');
+    } finally {
+      setIsFollowPending(false);
     }
   };
 
@@ -214,6 +252,7 @@ export default function ProfilePage() {
                   <Button
                     type="button"
                     variant={isFollowing ? 'secondary' : 'primary'}
+                    disabled={isFollowPending}
                   >
                     {isFollowing ? 'Following' : 'Follow'}
                   </Button>

@@ -6,6 +6,7 @@
  * - GET  /users/:username       → Get user public profile
  * - GET  /users/:username/posts → Get posts by user
  * - PUT  /users/profile/update  → Update own profile (auth required)
+ * - POST /users/:userId/follow  → Toggle follow state (auth required)
  */
 import api from '@/lib/axios';
 
@@ -31,23 +32,13 @@ export const usersApi = {
    */
   updateProfile: (data) => api.put('/users/profile/update', data),
 
-  /**
-   * @deprecated Not implemented in backend — placeholder for future
-   * Follow a user.
-   * @param {string} userId
-   */
-  follow: (userId) => {
-    console.warn(`[usersApi.follow] Not yet implemented. User ID: ${userId}`);
-    return Promise.resolve({ data: { success: true } });
-  },
+  follow: (userId) => api.post(`/users/${userId}/follow`),
 
-  /**
-   * @deprecated Not implemented in backend — placeholder for future
-   * Unfollow a user.
-   * @param {string} userId
-   */
-  unfollow: (userId) => {
-    console.warn(`[usersApi.unfollow] Not yet implemented. User ID: ${userId}`);
-    return Promise.resolve({ data: { success: true } });
-  },
+  unfollow: (userId) => api.post(`/users/${userId}/follow`),
+
+  getFollowers: (userId) => api.get(`/users/${userId}/followers`),
+
+  getFollowing: (userId) => api.get(`/users/${userId}/following`),
+
+  getSuggestions: (limit = 4) => api.get('/users/suggestions', { params: { limit } }),
 };
