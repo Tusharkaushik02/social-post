@@ -11,7 +11,7 @@ import axios from 'axios';
 import { API_BASE_URL, STORAGE_KEYS } from '@/config/constants';
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL:  import.meta.env.VITE_API_URL,
   timeout: 15000,
   withCredentials: true,
   headers: {
