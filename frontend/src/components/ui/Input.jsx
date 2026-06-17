@@ -1,4 +1,6 @@
 import { forwardRef } from 'react';
+import { cn } from '@/lib/cn';
+import styles from './Input.module.css';
 
 const Input = forwardRef(function Input(
   {
@@ -17,21 +19,19 @@ const Input = forwardRef(function Input(
   const inputId = id || `input-${label?.toLowerCase().replace(/\s+/g, '-')}`;
   const errorId = error ? `${inputId}-error` : undefined;
 
-  const inputClasses = `input-field${leftIcon ? ' input-with-icon-left' : ''}${rightIcon ? ' input-with-icon-right' : ''}${error ? ' has-error' : ''} ${className}`.trim();
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8, width: fullWidth ? '100%' : undefined }}>
+    <div className={cn('flex flex-col gap-2', fullWidth && 'w-full')}>
       {label && (
         <label
           htmlFor={inputId}
-          className="input-label"
+          className={styles.label}
         >
           {label}
         </label>
       )}
-      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+      <div className={styles.inputWrapper}>
         {leftIcon && (
-          <span className="input-icon-left">
+          <span className={styles.iconLeft}>
             {leftIcon}
           </span>
         )}
@@ -41,17 +41,23 @@ const Input = forwardRef(function Input(
           type={type}
           aria-invalid={error ? 'true' : undefined}
           aria-describedby={errorId}
-          className={inputClasses}
+          className={cn(
+            styles.input,
+            error && styles.error,
+            leftIcon && styles.hasLeftIcon,
+            rightIcon && styles.hasRightIcon,
+            className
+          )}
           {...props}
         />
         {rightIcon && (
-          <span className="input-icon-right">
+          <span className={styles.iconRight}>
             {rightIcon}
           </span>
         )}
       </div>
       {error && (
-        <p id={errorId} className="input-error animate-fade-in">
+        <p id={errorId} className={styles.errorText}>
           {error}
         </p>
       )}

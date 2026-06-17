@@ -3,18 +3,15 @@
  * Generic helpers used throughout the application.
  */
 
+import { cn as twCn } from '@/lib/cn';
+
 /**
  * Conditionally join CSS class names together.
- * Filters out falsy values (null, undefined, false, '').
  * @param  {...string} classes - Class names to join
  * @returns {string} Joined class string
- *
- * @example
- * cn('btn', isActive && 'btn-active', isDisabled && 'btn-disabled')
- * // → 'btn btn-active' (if isActive=true, isDisabled=false)
  */
 export function cn(...classes) {
-  return classes.filter(Boolean).join(' ');
+  return twCn(...classes);
 }
 
 /**

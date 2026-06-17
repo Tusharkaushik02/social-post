@@ -12,14 +12,14 @@ import api from '@/lib/axios';
 
 export const postsApi = {
   /**
-   * Fetch all posts (backend returns flat array, ignores pagination params)
-   * 
-   * @param {number} page - IGNORED by backend (kept for frontend compatibility)
-   * @param {number} limit - IGNORED by backend (kept for frontend compatibility)
-   * @returns {Promise} Response with posts array
+   * Fetch a page of posts.
+   *
+   * @param {number} page
+   * @param {number} limit
+   * @returns {Promise} Response with posts array and pagination metadata
    */
   getAll: (page = 1, limit = 10) => {
-    console.log(`[postsApi.getAll] Fetching posts from backend`);
+    console.log(`[postsApi.getAll] Fetching posts from backend`, { page, limit });
     return api.get('/posts', { params: { page, limit } });
   },
 
@@ -37,6 +37,7 @@ export const postsApi = {
     console.log('[postsApi.create] Creating post with FormData');
     return api.post('/posts/create', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
+      timeout: 60000,
     });
   },
 
@@ -82,26 +83,34 @@ export const postsApi = {
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * Toggle save/unsave a post (same endpoint — toggle behavior)
+   * POST /api/posts/:id/save
+   * @param {string} postId - Post ID
+   * @returns {Promise} Response with { success, saved: boolean }
    */
   save: (postId) => {
-    console.warn(`[postsApi.save] Not implemented in backend. Post ID: ${postId}`);
-    return Promise.reject(new Error('Endpoint not implemented: POST /posts/:postId/save'));
+    console.log(`[postsApi.save] Toggling save on post: ${postId}`);
+    return api.post(`/posts/${postId}/save`);
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * Alias for save (same toggle endpoint)
+   * @param {string} postId - Post ID
+   * @returns {Promise} Response with { success, saved: boolean }
    */
   unsave: (postId) => {
-    console.warn(`[postsApi.unsave] Not implemented in backend. Post ID: ${postId}`);
-    return Promise.reject(new Error('Endpoint not implemented: DELETE /posts/:postId/save'));
+    console.log(`[postsApi.unsave] Toggling save on post: ${postId}`);
+    return api.post(`/posts/${postId}/save`);
   },
 
   /**
-   * @deprecated Not implemented in backend
+   * Fetch saved posts for the current user.
+   * GET /api/posts/saved
+   * @param {number} page - Page number
+   * @returns {Promise} Response with { success, posts, page, totalPages, hasMore }
    */
   getSaved: (page = 1) => {
-    console.warn('[postsApi.getSaved] Not implemented in backend');
-    return Promise.reject(new Error('Endpoint not implemented: GET /posts/saved'));
+    console.log(`[postsApi.getSaved] Fetching saved posts, page: ${page}`);
+    return api.get('/posts/saved', { params: { page } });
   },
 };

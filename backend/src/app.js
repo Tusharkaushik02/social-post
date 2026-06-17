@@ -6,6 +6,7 @@ const { applyMiddleware } = require('./index');
 const errorHandler = require('./middleware/errorHandler');
 const user = require('./routes/user.route');
 const commentRoutes = require('./routes/comment.route');
+const searchRoutes = require('./routes/search.route');
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', user);
 app.use('/api/comments', commentRoutes);
+app.use('/api/search', searchRoutes);
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({

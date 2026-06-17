@@ -19,6 +19,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatCount } from '@/lib/utils';
 import { usePostStore } from '@/stores/usePostStore';
 import { usersApi } from '@/api/users.api';
+import EditProfileModal from '@/components/profile/EditProfileModal';
 
 const tabs = [
   { id: 'posts', label: 'Posts', icon: IoGridOutline },
@@ -61,6 +62,7 @@ export default function ProfilePage() {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isFollowPending, setIsFollowPending] = useState(false);
   const [activeTab, setActiveTab] = useState('posts');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const isOwnProfile = currentUser?.username === username;
 
@@ -179,6 +181,7 @@ export default function ProfilePage() {
   };
 
   return (
+    <>
     <FeedLayout>
       {/* Profile Card */}
       <motion.section
@@ -244,6 +247,7 @@ export default function ProfilePage() {
                 <Button
                   type="button"
                   variant="secondary"
+                  onClick={() => setIsEditModalOpen(true)}
                 >
                   Edit Profile
                 </Button>
@@ -406,5 +410,24 @@ export default function ProfilePage() {
         )}
       </motion.div>
     </FeedLayout>
+
+    {/* Edit Profile Modal */}
+    {isOwnProfile && (
+      <EditProfileModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        profile={profile}
+        onProfileUpdated={(updated) => {
+          setProfile((prev) => prev ? {
+            ...prev,
+            displayName: updated.displayName || prev.displayName,
+            avatar: updated.avatar || updated.avatarUrl || prev.avatar,
+            avatarUrl: updated.avatarUrl || updated.avatar || prev.avatarUrl,
+            bio: updated.bio ?? prev.bio,
+          } : prev);
+        }}
+      />
+    )}
+  </>
   );
 }

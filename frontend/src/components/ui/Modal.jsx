@@ -3,6 +3,14 @@ import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
+import { cn } from '@/lib/cn';
+import styles from './Modal.module.css';
+
+const sizeClasses = {
+  sm: styles.sizeSm,
+  md: styles.sizeMd,
+  lg: styles.sizeLg,
+};
 
 export default function Modal({
   isOpen,
@@ -30,12 +38,6 @@ export default function Modal({
     return () => window.removeEventListener('keydown', handleEsc);
   }, [isOpen, onClose]);
 
-  const sizeClass = {
-    sm: 'modal-sm',
-    md: 'modal-md',
-    lg: 'modal-lg',
-  }[size] || 'modal-md';
-
   const mobileVariants = {
     initial: { y: '100%' },
     animate: { y: 0, transition: { type: 'spring', damping: 32, stiffness: 320 } },
@@ -51,10 +53,14 @@ export default function Modal({
   return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="modal-overlay">
-          {/* Backdrop */}
+        <div
+          className={cn(
+            styles.overlay,
+            !isMobile && styles.overlayDesktop
+          )}
+        >
           <motion.div
-            className="modal-backdrop"
+            className={styles.backdrop}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -62,7 +68,6 @@ export default function Modal({
             aria-hidden="true"
           />
 
-          {/* Panel */}
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -71,25 +76,27 @@ export default function Modal({
             initial="initial"
             animate="animate"
             exit="exit"
-            className={`modal-panel ${sizeClass} ${className}`.trim()}
+            className={cn(
+              styles.modal,
+              isMobile ? styles.modalMobile : (sizeClasses[size] ?? sizeClasses.md),
+              className
+            )}
           >
-            {/* Mobile drag handle */}
             {isMobile && (
-              <div className="modal-drag-handle">
-                <div className="modal-drag-handle-bar" />
+              <div className={styles.dragHandleContainer}>
+                <div className={styles.dragHandle} />
               </div>
             )}
 
-            {/* Header */}
             {title && (
-              <div className="modal-header">
-                <h2 id="modal-title" className="modal-title">
+              <div className={styles.header}>
+                <h2 id="modal-title" className={styles.title}>
                   {title}
                 </h2>
                 <button
                   type="button"
                   onClick={onClose}
-                  className="modal-close-btn"
+                  className={styles.closeButton}
                   aria-label="Close modal"
                 >
                   <IoCloseOutline size={20} />
@@ -97,8 +104,7 @@ export default function Modal({
               </div>
             )}
 
-            {/* Content */}
-            <div className="modal-body">
+            <div className={cn(styles.content, isMobile && styles.contentMobile)}>
               {children}
             </div>
           </motion.div>

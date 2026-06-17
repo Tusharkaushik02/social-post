@@ -1,0 +1,41 @@
+.avatar {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  user-select: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+}
+.hasStory {
+  background: linear-gradient(to bottom right, var(--color-primary), var(--color-secondary));
+  padding: 2px;
+}
+
+.inner {
+  display: flex;
+  height: 100%;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-container-high);
+}
+.hasStoryInner {
+  box-shadow: 0 0 0 2px var(--color-surface);
+}
+
+.image {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s;
+}
+
+.group {
+  display: flex;
+}
+.group > * + * {
+  margin-left: -8px;
+}

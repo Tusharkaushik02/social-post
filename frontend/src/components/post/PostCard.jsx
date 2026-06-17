@@ -6,6 +6,7 @@ import { IoCheckmarkCircle, IoEllipsisHorizontal, IoHeart } from 'react-icons/io
 import Avatar from '@/components/ui/Avatar';
 import CommentModal from '@/components/post/CommentModal';
 import PostActions from '@/components/post/PostActions';
+import PostOptionsMenu from '@/components/post/PostOptionsMenu';
 import { useAuth } from '@/hooks/useAuth';
 import { formatRelativeTime, truncate } from '@/lib/utils';
 import { useCommentStore } from '@/stores/useCommentStore';
@@ -21,6 +22,7 @@ export default function PostCard({ post }) {
   const [lastTap, setLastTap] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [isCommenting, setIsCommenting] = useState(false);
 
@@ -124,13 +126,21 @@ export default function PostCard({ post }) {
               {formatRelativeTime(post.createdAt)}
             </span>
           </div>
-          <button
-            type="button"
-            className="post-more-btn"
-            aria-label="Post options"
-          >
-            <IoEllipsisHorizontal size={16} />
-          </button>
+          <div style={{ position: 'relative' }}>
+            <button
+              type="button"
+              className="post-more-btn"
+              aria-label="Post options"
+              onClick={() => setIsOptionsOpen((v) => !v)}
+            >
+              <IoEllipsisHorizontal size={16} />
+            </button>
+            <PostOptionsMenu
+              post={post}
+              isOpen={isOptionsOpen}
+              onClose={() => setIsOptionsOpen(false)}
+            />
+          </div>
         </div>
 
         {/* Caption */}

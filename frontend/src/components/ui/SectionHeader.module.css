@@ -1,0 +1,38 @@
+.container {
+  display: flex;
+  min-height: 56px;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.content {
+  min-width: 0;
+  flex: 1;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--text-title);
+  line-height: var(--text-title--line-height);
+  font-weight: var(--text-title--font-weight);
+  color: var(--color-on-surface);
+}
+
+.subtitle {
+  margin-top: 4px;
+  font-size: var(--text-body);
+  color: var(--color-on-surface-variant);
+}
+
+.action {
+  flex-shrink: 0;
+}

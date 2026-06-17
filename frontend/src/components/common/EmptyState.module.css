@@ -1,0 +1,48 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-radius: var(--radius-card);
+  border: 1px solid rgba(207, 196, 197, 0.6);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+.compact {
+  padding: 40px 24px;
+}
+.normal {
+  padding: 48px 24px;
+}
+
+.iconWrapper {
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-card);
+  height: 56px;
+  width: 56px;
+  border: 1px solid rgba(207, 196, 197, 0.6);
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  font-size: 24px;
+}
+
+.title {
+  font-size: var(--text-body);
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.description {
+  margin-top: 8px;
+  max-width: 280px;
+  font-size: var(--text-body);
+  color: var(--color-on-surface-variant);
+}
+
+.action {
+  margin-top: 24px;
+}

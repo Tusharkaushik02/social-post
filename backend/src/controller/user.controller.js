@@ -66,8 +66,12 @@ exports.getSuggestions = async (req, res) => {
                     displayname: 1,
                     avatarUrl: 1,
                     bio: 1,
-                    followersCount: { $size: "$followers" },
-                    followingCount: { $size: "$following" }
+                    followersCount: {  $size: {
+                        $ifNull: ["$followers", []]
+                    } },
+                    followingCount: { $size: {
+                        $ifNull: ["$following", []]
+                    } }
                 }
             }
         ]);

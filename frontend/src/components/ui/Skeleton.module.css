@@ -1,0 +1,29 @@
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-container-high) 25%,
+    var(--color-outline-variant) 50%,
+    var(--color-surface-container-high) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+.text { border-radius: var(--radius-sm); height: 16px; }
+.circular { border-radius: var(--radius-full); }
+.rectangular { border-radius: var(--radius-card); }
+
+.skeletonText { display: flex; flex-direction: column; gap: 8px; }
+
+.skeletonCard {
+  border-radius: var(--radius-xl);
+  border: 0.5px solid rgba(207, 196, 197, 0.3);
+  background-color: var(--color-surface-container-lowest);
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  box-sizing: border-box;
+}
+
+.skeletonCardHeader { display: flex; gap: 12px; }
+.skeletonCardLines { display: flex; flex: 1; flex-direction: column; gap: 12px; }
+.skeletonCardImage { margin-top: 16px; aspect-ratio: 16/9; }

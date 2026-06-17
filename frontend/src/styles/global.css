@@ -2,7 +2,6 @@
    Aura Social — Design System Tokens & Global Styles
    Tailwind design system + legacy component CSS
    ═══════════════════════════════════════════════════════════════ */
-@import "./tailwind.css";
 @import "./animations.css";
 
 /* ─── Design Tokens ─────────────────────────────────────────── */

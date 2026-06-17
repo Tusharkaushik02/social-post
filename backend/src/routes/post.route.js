@@ -3,13 +3,17 @@ const multer = require('multer');
 const postController = require('../controller/post.controller');
 const authMiddleware = require('../middleware/authMiddleware');
 const optionalAuthMiddleware = require('../middleware/optionalAuth');
-const {toggleLike,getLikedUsers} = require('../controller/like.controller');
-const {getCommentsByPost, createComment} = require('../controller/comment.controller');
+const { toggleLike, getLikedUsers } = require('../controller/like.controller');
+const { getCommentsByPost, createComment } = require('../controller/comment.controller');
+const { toggleSave, getSavedPosts } = require('../controller/save.controller');
 
 const router = express.Router();
 
 // Configure multer for file uploads
 const upload = multer({ storage: multer.memoryStorage() });
+
+// ── Save routes (must be before /:id to avoid 'saved' matching as an ID) ──
+router.get('/saved', authMiddleware, getSavedPosts);
 
 // Routes
 router.post('/create',
@@ -32,5 +36,7 @@ router.get('/:id/likes', getLikedUsers);
 router.get('/:id/comments', getCommentsByPost);
 
 router.post('/:id/comments', authMiddleware, createComment);
+
+router.post('/:id/save', authMiddleware, toggleSave);
 
 module.exports = router;

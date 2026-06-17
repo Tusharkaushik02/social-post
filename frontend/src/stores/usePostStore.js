@@ -33,8 +33,8 @@ export const usePostStore = create((set, get) => ({
   error: null,
 
   /**
-   * Fetch all posts from backend
-   * GET /api/posts → { success: true, posts: [...] }
+   * Fetch the first page of posts from backend.
+   * GET /api/posts?page=1&limit=PAGE_SIZE → { success: true, posts: [...], hasMore }
    */
   fetchPosts: async () => {
     console.log('[usePostStore.fetchPosts] Starting fetch...');
@@ -47,7 +47,7 @@ export const usePostStore = create((set, get) => ({
       set({
         posts,
         page: 1,
-        hasMore: false, // Backend doesn't support pagination
+        hasMore: data.hasMore ?? posts.length === PAGE_SIZE,
         isLoading: false,
         error: null,
       });
@@ -63,23 +63,57 @@ export const usePostStore = create((set, get) => ({
     }
   },
 
-  /**
-   * Fetch more posts (pagination)
-   * Backend doesn't support pagination — no-op
-   */
   fetchMorePosts: async () => {
-    const { isFetchingMore, hasMore } = get();
+    const { page, isFetchingMore, hasMore } = get();
     if (isFetchingMore || !hasMore) return;
-    set({ hasMore: false });
+
+    set({ isFetchingMore: true, error: null });
+
+    const nextPage = page + 1;
+    try {
+      const { data } = await postsApi.getAll(nextPage, PAGE_SIZE);
+      const newPosts = normalizePosts(data);
+
+      set((state) => ({
+        posts: [...state.posts, ...newPosts],
+        page: nextPage,
+        hasMore: data.hasMore ?? newPosts.length === PAGE_SIZE,
+        isFetchingMore: false,
+        error: null,
+      }));
+    } catch (error) {
+      const errorMsg = error.message || 'Failed to load more posts';
+      console.error('[usePostStore.fetchMorePosts] Error:', errorMsg);
+      set({
+        isFetchingMore: false,
+        error: errorMsg,
+      });
+      throw error;
+    }
   },
 
   /**
-   * Fetch saved posts (client-side filter — backend doesn't support this)
+   * Fetch saved posts from backend.
+   * GET /api/posts/saved → { success, posts, hasMore }
    */
   fetchSavedPosts: async () => {
+    console.log('[usePostStore.fetchSavedPosts] Fetching from backend...');
     set({ isLoading: true, error: null });
-    const saved = get().posts.filter((post) => post.isSaved);
-    set({ savedPosts: saved, isLoading: false });
+    try {
+      const { data } = await postsApi.getSaved();
+      const posts = normalizePosts(data);
+
+      console.log(`[usePostStore.fetchSavedPosts] Got ${posts.length} saved posts`);
+      set({ savedPosts: posts, isLoading: false });
+    } catch (error) {
+      const errorMsg = error.message || 'Failed to load saved posts';
+      console.error('[usePostStore.fetchSavedPosts] Error:', errorMsg);
+      set({
+        error: errorMsg,
+        isLoading: false,
+        savedPosts: [],
+      });
+    }
   },
 
   /**
@@ -210,19 +244,42 @@ export const usePostStore = create((set, get) => ({
   },
 
   /**
-   * Save/unsave a post
-   * Backend doesn't support save endpoint — optimistic only
+   * Save/unsave a post (toggle)
+   * POST /api/posts/:id/save
+   *
+   * 1. Optimistic update (toggle isSaved)
+   * 2. Call postsApi.save(postId)
+   * 3. On error, rollback optimistic update
    */
   savePost: async (postId) => {
+    const { posts, savedPosts, profilePosts } = get();
+
     const apply = (post) => ({ ...post, isSaved: !post.isSaved });
 
-    set((state) => ({
-      posts: updatePost(state.posts, postId, apply),
-      savedPosts: updatePost(state.savedPosts, postId, apply).filter(
+    // 1. Optimistic update
+    set({
+      posts: updatePost(posts, postId, apply),
+      savedPosts: updatePost(savedPosts, postId, apply).filter(
         (post) => post.isSaved
       ),
-      profilePosts: updatePost(state.profilePosts, postId, apply),
-    }));
+      profilePosts: updatePost(profilePosts, postId, apply),
+    });
+
+    try {
+      // 2. Call API
+      console.log(`[usePostStore.savePost] Toggling save for post: ${postId}`);
+      await postsApi.save(postId);
+      console.log(`[usePostStore.savePost] Successfully toggled save for post: ${postId}`);
+    } catch (error) {
+      // 3. Rollback on error
+      console.error('[usePostStore.savePost] Error:', error.message);
+      set({
+        posts: updatePost(posts, postId, apply), // Re-apply to revert
+        savedPosts,                                // Restore original
+        profilePosts: updatePost(profilePosts, postId, apply),
+      });
+      throw error;
+    }
   },
 
   updateCommentsCount: (postId, amount) => {

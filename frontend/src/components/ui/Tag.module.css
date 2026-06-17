@@ -1,0 +1,43 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 500;
+  transition: all 0.15s ease;
+  border-radius: var(--radius-full);
+}
+.interactive {
+  cursor: pointer;
+  outline: none;
+}
+.interactive:focus-visible {
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.3);
+}
+.interactive:active {
+  transform: scale(0.97);
+}
+
+/* Variants */
+.default { background-color: var(--color-surface-container-high); color: var(--color-on-surface); }
+.default.interactive:hover { background-color: var(--color-surface-variant); }
+
+.primary { background-color: var(--color-primary-container); color: var(--color-on-primary-container); }
+.primary.interactive:hover { opacity: 0.9; }
+
+.accent { background-color: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+.accent.interactive:hover { opacity: 0.9; }
+
+.outline { border: 0.5px solid var(--color-outline-variant); background-color: var(--color-surface); color: var(--color-on-surface-variant); }
+.outline.interactive:hover { border-color: var(--color-outline); color: var(--color-on-surface); }
+
+/* Selected overrides */
+.selected {
+  background-color: var(--color-primary) !important;
+  color: var(--color-on-primary) !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.02) !important;
+  border-color: transparent !important;
+}
+
+/* Sizes */
+.sm { padding: 2px 10px; font-size: var(--text-caption); }
+.md { padding: 4px 12px; font-size: var(--text-label); }
+.lg { padding: 6px 16px; font-size: var(--text-body); }

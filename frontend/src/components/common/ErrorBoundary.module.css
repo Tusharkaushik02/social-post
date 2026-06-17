@@ -1,0 +1,45 @@
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  min-height: 400px;
+}
+.iconBadge {
+  display: flex;
+  height: 56px;
+  width: 56px;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background-color: var(--color-error-container);
+  color: var(--color-on-error-container);
+  margin-bottom: 16px;
+}
+.title {
+  font-size: var(--text-heading);
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+.description {
+  margin-top: 8px;
+  max-width: 384px;
+  color: var(--color-on-surface-variant);
+}
+.button {
+  margin-top: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+}
