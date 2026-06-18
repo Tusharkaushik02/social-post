@@ -28,10 +28,11 @@ async function registerUser (req,res){
     const token = jwt.sign(
         { id: user._id, username: user.username },
          process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
-         res.cookie('token', token, {
+        const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+        res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            secure: isProduction,
+            sameSite: isProduction ? 'none' : 'lax',
         });
     const userResponse = user.toObject();
     delete userResponse.passwordHash;
