@@ -71,7 +71,10 @@ api.interceptors.response.use(
     console.error('[API Error Response]', errorInfo);
 
     // Handle 401 — user's session is invalid or expired
-    if (error.response?.status === 401) {
+    // Skip this logic if the error comes from login or register endpoints
+    const isAuthRoute = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+    
+    if (error.response?.status === 401 && !isAuthRoute) {
       console.warn('[API] Unauthorized (401) — session expired');
 
       // Defer store imports to avoid circular dependencies during render
