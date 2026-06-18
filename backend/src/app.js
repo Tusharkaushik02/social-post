@@ -11,6 +11,7 @@ const searchRoutes = require('./routes/search.route');
 dotenv.config();
 
 const app = express();
+app.set('trust proxy', 1); // Trust the reverse proxy (Render) to allow Secure cookies
  // Apply all middleware
 applyMiddleware(app);
 
