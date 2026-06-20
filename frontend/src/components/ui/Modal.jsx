@@ -19,6 +19,7 @@ export default function Modal({
   size = 'md',
   children,
   className = '',
+  contentClassName = '',
 }) {
   const isMobile = useMediaQuery('(max-width: 639px)');
 
@@ -104,7 +105,7 @@ export default function Modal({
               </div>
             )}
 
-            <div className={cn(styles.content, isMobile && styles.contentMobile)}>
+            <div className={cn(styles.content, isMobile && styles.contentMobile, contentClassName)}>
               {children}
             </div>
           </motion.div>

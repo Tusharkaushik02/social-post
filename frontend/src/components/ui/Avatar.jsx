@@ -41,6 +41,7 @@ export default function Avatar({
   fallbackName = 'User',
   hasStory = false,
   className = '',
+  style = {},
   ...props
 }) {
   const [imgError, setImgError] = useState(false);
@@ -65,7 +66,7 @@ export default function Avatar({
         hasStory && styles.hasStory,
         className
       )}
-      style={{ width: outerSize, height: outerSize }}
+      style={{ width: outerSize, height: outerSize, ...style }}
       {...props}
     >
       <div
