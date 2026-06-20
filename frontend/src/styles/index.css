@@ -698,7 +698,7 @@ input, textarea, select { font: inherit; }
 }
 
 /* Comments */
-.comment-modal .modal-body {
+.comment-modal-content {
   padding: 0;
 }
 
