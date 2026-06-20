@@ -12,6 +12,10 @@ async function registerUser (req,res){
         return res.status(400).json({error:"All fields are required"})
     }
     const existingUser = await userModel.findOne({ email });
+    const existingUsername =await userModel.findOne({ username });
+    if (existingUsername) {
+        return res.status(409).json({ error: 'Username already in use' });
+    }
     if (existingUser) {
         return res.status(409).json({ error: 'Email already in use' });
     }
