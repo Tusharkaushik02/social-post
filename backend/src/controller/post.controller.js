@@ -16,6 +16,37 @@ const transformPostWithCounts = async (post, currentUserId, savedPostIds) => {
         isSaved: savedPostIds ? savedPostIds.has(postObj._id.toString()) : false
     };
 };
+//Pagination helper functions
+function encodeCursor(createdAt, id) {
+    return Buffer.from(
+        JSON.stringify({
+            createdAt,
+            id,
+        })
+    ).toString("base64");
+}
+
+function decodeCursor(cursor) {
+    if (!cursor) return null;
+
+    try {
+        const parsed = JSON.parse(
+            Buffer.from(cursor, "base64").toString("utf8")
+        );
+
+        if (!parsed.createdAt || !parsed.id) return null;
+
+        const createdAt = new Date(parsed.createdAt);
+        if (Number.isNaN(createdAt.getTime())) return null;
+
+        return {
+            createdAt,
+            id: parsed.id
+        };
+    } catch {
+        return null;
+    }
+}
 
 // Create a new post
 exports.createPost = async (req, res) => {
@@ -76,93 +107,97 @@ exports.createPost = async (req, res) => {
 // Get all posts
 exports.getAllPosts = async (req, res) => {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+        const limit = Math.min(
+            Math.min(Number(req.query.limit) || 4, 4),
+            50
+        );
+        const fetchLimit = limit + 1;
+        const cursor = decodeCursor(req.query.cursor);
+
+        const cursorFilter = cursor
+            ? {
+                $or: [
+                    {
+                        createdAt: {
+                            $lt: cursor.createdAt
+                        }
+                    },
+                    {
+                        createdAt: cursor.createdAt,
+                        _id: {
+                            $lt: cursor.id
+                        }
+                    }
+                ]
+            }
+            : {};
+
+        const sortByNewest = {
+            createdAt: -1,
+            _id: -1
+        };
 
         let posts = [];
-        let total = 0;
 
-        // Guest Feed
+        // Guest feed
         if (!req.user) {
-            posts = await Post.find()
+            posts = await Post.find(cursorFilter)
                 .populate("User", "username displayname avatarUrl")
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(limit);
-
-            total = await Post.countDocuments();
+                .sort(sortByNewest)
+                .limit(fetchLimit);
         } else {
+            const currentUser = await User.findById(req.user.id).select("following");
+            const followingIds = currentUser?.following || [];
 
-            const currentUser = await User.findById(req.user.id)
-                .select("following");
-
-            const followingIds = currentUser.following;
-
-            const followingLimit = Math.ceil(limit * 0.7);
-            const exploreLimit = limit - followingLimit;
-
-            // Posts from followed users
-            const followingPosts = await Post.find({
-                User: { $in: followingIds }
-            })
-                .populate("User", "username displayname avatarUrl")
-                .sort({ createdAt: -1 })
-                .skip(skip)
-                .limit(followingLimit);
-
-            // Popular posts from other users
-            const popularPostsAgg = await Post.aggregate([
-                {
-                    $match: {
-                        User: {
-                            $nin: [...followingIds, currentUser._id]
-                        }
-                    }
-                },
-                {
-                    $addFields: {
-                        likesCount: {
-                             $size: {
-                                    $ifNull: ["$likes", []]
-                                }
-                        }
-                    }
-                },
-                {
-                    $sort: {
-                        likesCount: -1,
-                        createdAt: -1
-                    }
-                },
-                {
-                    $limit: exploreLimit
-                }
+            const [followingPosts, explorePosts] = await Promise.all([
+                Post.find({
+                    User: { $in: followingIds },
+                    ...cursorFilter
+                })
+                    .populate("User", "username displayname avatarUrl")
+                    .sort(sortByNewest)
+                    .limit(fetchLimit),
+                Post.find({
+                    User: {
+                        $nin: [...followingIds, req.user.id]
+                    },
+                    ...cursorFilter
+                })
+                    .populate("User", "username displayname avatarUrl")
+                    .sort(sortByNewest)
+                    .limit(fetchLimit)
             ]);
 
-            // Populate User manually after aggregation
-            const popularPosts = await Post.populate(popularPostsAgg, {
-                path: "User",
-                select: "username displayname avatarUrl"
-            });
+            posts = [...followingPosts, ...explorePosts]
+                .sort((a, b) => {
+                    const createdAtDiff = b.createdAt - a.createdAt;
+                    if (createdAtDiff !== 0) return createdAtDiff;
 
-            posts = [...followingPosts, ...popularPosts];
-
-            // Slight shuffle
-            posts.sort(() => Math.random() - 0.5);
-
-            total = await Post.countDocuments();
+                    return b._id.toString().localeCompare(a._id.toString());
+                })
+                .slice(0, fetchLimit);
         }
 
+        const hasMore = posts.length > limit;
+        const pagePosts = hasMore ? posts.slice(0, limit) : posts;
+        const last = pagePosts[pagePosts.length - 1];
+
+        const nextCursor = hasMore && last
+            ? encodeCursor(
+                last.createdAt,
+                last._id
+            )
+            : null;
+
         // Get saved post IDs for current user
-        const postIds = posts.map(p => (p._id || p).toString());
+        const postIds = pagePosts.map(p => p._id.toString());
         const savedPostIds = req.user
             ? await getSavedPostIds(req.user.id, postIds)
             : new Set();
 
         // Add likesCount, commentsCount, isLiked, isSaved...
         const transformedPosts = await Promise.all(
-            posts.map(post =>
+            pagePosts.map(post =>
                 transformPostWithCounts(
                     post,
                     req.user ? req.user.id : null,
@@ -174,9 +209,8 @@ exports.getAllPosts = async (req, res) => {
         res.status(200).json({
             success: true,
             posts: transformedPosts,
-            page,
-            totalPages: Math.ceil(total / limit),
-            hasMore: page * limit < total
+            nextCursor,
+            hasMore
         });
 
     } catch (error) {
