@@ -29,25 +29,25 @@ export const usePostStore = create((set, get) => ({
   isLoading: false,
   isFetchingMore: false,
   hasMore: false,
-  page: 1,
+  nextCursor: null,
   error: null,
 
   /**
    * Fetch the first page of posts from backend.
-   * GET /api/posts?page=1&limit=PAGE_SIZE → { success: true, posts: [...], hasMore }
+   * GET /api/posts?cursor=null&limit=PAGE_SIZE → { success: true, posts: [...], nextCursor, hasMore }
    */
   fetchPosts: async () => {
     console.log('[usePostStore.fetchPosts] Starting fetch...');
-    set({ isLoading: true, error: null, page: 1, hasMore: false });
+    set({ isLoading: true, error: null, nextCursor: null, hasMore: false });
     try {
-      const { data } = await postsApi.getAll(1, PAGE_SIZE);
+      const { data } = await postsApi.getAll(null, PAGE_SIZE);
       const posts = normalizePosts(data);
 
       console.log(`[usePostStore.fetchPosts] Got ${posts.length} posts`);
       set({
         posts,
-        page: 1,
-        hasMore: data.hasMore ?? posts.length === PAGE_SIZE,
+        nextCursor: data.nextCursor || null,
+        hasMore: data.hasMore ?? false,
         isLoading: false,
         error: null,
       });
@@ -64,20 +64,19 @@ export const usePostStore = create((set, get) => ({
   },
 
   fetchMorePosts: async () => {
-    const { page, isFetchingMore, hasMore } = get();
+    const { nextCursor, isFetchingMore, hasMore } = get();
     if (isFetchingMore || !hasMore) return;
 
     set({ isFetchingMore: true, error: null });
 
-    const nextPage = page + 1;
     try {
-      const { data } = await postsApi.getAll(nextPage, PAGE_SIZE);
+      const { data } = await postsApi.getAll(nextCursor, PAGE_SIZE);
       const newPosts = normalizePosts(data);
 
       set((state) => ({
         posts: [...state.posts, ...newPosts],
-        page: nextPage,
-        hasMore: data.hasMore ?? newPosts.length === PAGE_SIZE,
+        nextCursor: data.nextCursor || null,
+        hasMore: data.hasMore ?? false,
         isFetchingMore: false,
         error: null,
       }));
@@ -300,7 +299,7 @@ export const usePostStore = create((set, get) => ({
       posts: [],
       profilePosts: [],
       savedPosts: [],
-      page: 1,
+      nextCursor: null,
       hasMore: false,
       error: null,
       isLoading: false,

@@ -12,15 +12,15 @@ import api from '@/lib/axios';
 
 export const postsApi = {
   /**
-   * Fetch a page of posts.
+   * Fetch posts using cursor pagination.
    *
-   * @param {number} page
+   * @param {string|null} cursor
    * @param {number} limit
-   * @returns {Promise} Response with posts array and pagination metadata
+   * @returns {Promise} Response with { posts, nextCursor, hasMore }
    */
-  getAll: (page = 1, limit = 10) => {
-    console.log(`[postsApi.getAll] Fetching posts from backend`, { page, limit });
-    return api.get('/posts', { params: { page, limit } });
+  getAll: (cursor = null, limit = 4) => {
+    console.log(`[postsApi.getAll] Fetching posts from backend`, { cursor, limit });
+    return api.get('/posts', { params: { cursor, limit } });
   },
 
   /**
