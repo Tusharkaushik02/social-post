@@ -108,7 +108,7 @@ exports.createPost = async (req, res) => {
 exports.getAllPosts = async (req, res) => {
     try {
         const limit = Math.min(
-            Math.min(Number(req.query.limit) || 4, 10),
+            Math.min(Number(req.query.limit) || 4, 6),
             50
         );
         const fetchLimit = limit + 1;

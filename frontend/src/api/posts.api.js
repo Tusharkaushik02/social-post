@@ -18,7 +18,7 @@ export const postsApi = {
    * @param {number} limit
    * @returns {Promise} Response with { posts, nextCursor, hasMore }
    */
-  getAll: (cursor = null, limit = 10) => {
+  getAll: (cursor = null, limit = 6) => {
     console.log(`[postsApi.getAll] Fetching posts from backend`, { cursor, limit });
     return api.get('/posts', { params: { cursor, limit } });
   },

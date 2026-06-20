@@ -27,7 +27,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useIntersectionObserver({
   threshold = 0,
-  rootMargin = '100px',
+  rootMargin = '400px',
   enabled = true,
 } = {}) {
   const [isIntersecting, setIsIntersecting] = useState(false);
