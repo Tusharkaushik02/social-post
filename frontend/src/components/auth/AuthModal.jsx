@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Modal from '@/components/ui/Modal';
 import LoginForm from './LoginForm';
@@ -8,8 +9,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { IoCloseOutline } from 'react-icons/io5';
 
 export default function AuthModal() {
-  const { isAuthModalOpen, closeAuthModal, authModalView, switchAuthView } = useAuth();
+  const { isAuthModalOpen, closeAuthModal, authModalView, switchAuthView, isAuthenticated } = useAuth();
   const isLogin = authModalView === 'login';
+
+  useEffect(() => {
+    if (isAuthenticated && isAuthModalOpen) {
+      closeAuthModal();
+    }
+  }, [isAuthenticated, isAuthModalOpen, closeAuthModal]);
 
   return (
     <Modal

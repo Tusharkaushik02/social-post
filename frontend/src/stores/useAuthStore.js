@@ -76,6 +76,55 @@ export const useAuthStore = create((set, get) => ({
   },
 
   /**
+   * Login/Register with Google OAuth ID token.
+   * @param {string} idToken
+   */
+  loginWithGoogle: async (idToken) => {
+    console.log('[useAuthStore.loginWithGoogle] Logging in with Google token...');
+    set({ isLoading: true, error: null });
+
+    try {
+      const loginRes = await authApi.googleLogin(idToken);
+      const loginUser = loginRes.data?.user;
+
+      if (loginUser) {
+        const user = normalizeUser(loginUser);
+        set({
+          user,
+          isAuthenticated: true,
+          isLoading: false,
+          error: null,
+        });
+        console.log('[useAuthStore.loginWithGoogle] Google Login successful');
+        return user;
+      }
+
+      // Otherwise fetch user from /auth/me
+      const { data } = await authApi.getMe();
+      const user = normalizeUser(data.user || data);
+
+      set({
+        user,
+        isAuthenticated: true,
+        isLoading: false,
+        error: null,
+      });
+
+      console.log('[useAuthStore.loginWithGoogle] Google Login successful');
+      return user;
+    } catch (error) {
+      const message =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        error.message ||
+        'Google Login failed';
+      console.error('[useAuthStore.loginWithGoogle] Error:', message);
+      set({ error: message, isLoading: false });
+      throw error;
+    }
+  },
+
+  /**
    * Register a new user account.
    * Backend sets httpOnly cookie automatically.
    *

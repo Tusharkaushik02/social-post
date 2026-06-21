@@ -17,10 +17,12 @@ async function getMe(req, res) {
 
 function logoutUser(req, res) {
     const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+    const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+    const secure = isProduction && !isLocalhost;
     res.clearCookie('token', {
         httpOnly: true,
-        secure: isProduction,
-        sameSite: isProduction ? 'none' : 'lax',
+        secure,
+        sameSite: secure ? 'none' : 'lax',
     });
     return res.json({ success: true, message: 'Logged out successfully' });
 }

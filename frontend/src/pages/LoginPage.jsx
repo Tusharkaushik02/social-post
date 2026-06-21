@@ -11,11 +11,10 @@ export default function LoginPage() {
   const location = useLocation();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  // Redirect to home (or previous page) if already authenticated
-  const from = location.state?.from?.pathname || '/';
+  // Redirect to home if already authenticated
   useEffect(() => {
-    if (isAuthenticated) navigate(from, { replace: true });
-  }, [isAuthenticated, navigate, from]);
+    if (isAuthenticated) navigate('/', { replace: true });
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="auth-page">

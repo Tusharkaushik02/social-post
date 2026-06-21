@@ -8,6 +8,7 @@ export function useAuth() {
   const error = useAuthStore((s) => s.error);
 
   const login = useAuthStore((s) => s.login);
+  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const register = useAuthStore((s) => s.register);
   const logout = useAuthStore((s) => s.logout);
   const checkAuth = useAuthStore((s) => s.checkAuth);
@@ -36,6 +37,7 @@ export function useAuth() {
     isAuthModalOpen: authModal.isOpen,
     authModalView: authModal.view,
     login,
+    loginWithGoogle,
     register,
     logout,
     checkAuth,

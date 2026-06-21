@@ -21,10 +21,12 @@ async function loginUser(req, res) {
            { id: user._id, username: user.username },
             process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE });
            const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true';
+           const isLocalhost = req.hostname === 'localhost' || req.hostname === '127.0.0.1';
+           const secure = isProduction && !isLocalhost;
            res.cookie('token', token, {
                httpOnly: true,
-               secure: isProduction,
-               sameSite: isProduction ? 'none' : 'lax',
+               secure,
+               sameSite: secure ? 'none' : 'lax',
            });
          const userResponse = user.toObject();
          delete userResponse.passwordHash;

@@ -26,6 +26,13 @@ export const authApi = {
   login: (credentials) => api.post('/auth/login', credentials),
 
   /**
+   * Log in with Google OAuth ID token.
+   * @param {string} idToken
+   * @returns {Promise} Response with user data + token cookie set
+   */
+  googleLogin: (idToken) => api.post('/auth/google', { idToken }),
+
+  /**
    * Log out the current user (clears httpOnly cookie).
    * @returns {Promise} Response confirmation
    */
