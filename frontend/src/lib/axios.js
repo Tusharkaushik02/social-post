@@ -12,7 +12,7 @@ import { API_BASE_URL, STORAGE_KEYS } from '@/config/constants';
 
 const api = axios.create({
   baseURL:  import.meta.env.VITE_API_URL,
-  timeout: 15000,
+  timeout: 20000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',

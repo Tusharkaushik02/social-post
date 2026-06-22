@@ -3,7 +3,7 @@ const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-const client = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 async function googleOAuth(req,res){
     try{
@@ -14,7 +14,7 @@ async function googleOAuth(req,res){
     }
 
 
-    if (!process.env.VITE_GOOGLE_CLIENT_ID) {
+    if (!process.env.GOOGLE_CLIENT_ID) {
         return res.status(500).json({ error: 'Google Client ID is not configured on the server' });
     }
 
@@ -22,7 +22,7 @@ async function googleOAuth(req,res){
     try {
         const ticket = await client.verifyIdToken({
             idToken,
-            audience: process.env.VITE_GOOGLE_CLIENT_ID
+            audience: process.env.GOOGLE_CLIENT_ID
         });
         payload = ticket.getPayload();
     } catch (verifyError) {
