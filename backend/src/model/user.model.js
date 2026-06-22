@@ -20,13 +20,6 @@ const userSchema = new mongoose.Schema({
         default: null,
         unique: true,
         sparse: true
-    },
-
-    appleId: {
-        type: String,
-        default: null,
-        unique: true,
-        sparse: true
     }
 }, { timestamps: true });
 
