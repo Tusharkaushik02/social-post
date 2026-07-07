@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { authApi } from '@/api/auth.api';
 import { useUIStore } from '@/stores/useUIStore';
+import { STORAGE_KEYS } from '@/config/constants';
 
 /**
  * Normalize backend user object to frontend field names.
@@ -18,6 +19,7 @@ function normalizeUser(raw) {
 
 export const useAuthStore = create((set, get) => ({
   user: null,
+  token: typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN) || null : null,
   isAuthenticated: false,
   isLoading: false,
   error: null,
@@ -36,6 +38,13 @@ export const useAuthStore = create((set, get) => ({
     try {
       const loginRes = await authApi.login(credentials);
       const loginUser = loginRes.data?.user;
+      const token = loginRes.data?.token;
+
+      if (token) {
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      }
+
+      set({ token: token || get().token || null });
 
       // If login response includes user data, use it directly
       if (loginUser) {
@@ -86,6 +95,13 @@ export const useAuthStore = create((set, get) => ({
     try {
       const loginRes = await authApi.googleLogin(idToken);
       const loginUser = loginRes.data?.user;
+      const token = loginRes.data?.token;
+
+      if (token) {
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      }
+
+      set({ token: token || get().token || null });
 
       if (loginUser) {
         const user = normalizeUser(loginUser);
@@ -137,6 +153,13 @@ export const useAuthStore = create((set, get) => ({
     try {
       const registerRes = await authApi.register(userData);
       const registeredUser = registerRes.data?.user;
+      const token = registerRes.data?.token;
+
+      if (token) {
+        localStorage.setItem(STORAGE_KEYS.AUTH_TOKEN, token);
+      }
+
+      set({ token: token || get().token || null });
 
       if (registeredUser) {
         const user = normalizeUser(registeredUser);
@@ -186,6 +209,7 @@ export const useAuthStore = create((set, get) => ({
       isAuthenticated: false,
       error: null,
     });
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
 
     try {
       await authApi.logout();
@@ -217,10 +241,12 @@ export const useAuthStore = create((set, get) => ({
       console.log('[useAuthStore.checkAuth] Not authenticated');
       set({
         user: null,
+        token: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
       });
+      localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     }
   },
 
@@ -232,9 +258,11 @@ export const useAuthStore = create((set, get) => ({
     console.log('[useAuthStore.clearSession] Clearing session');
     set({
       user: null,
+      token: null,
       isAuthenticated: false,
       error: null,
     });
+    localStorage.removeItem(STORAGE_KEYS.AUTH_TOKEN);
   },
 
   clearError: () => {
