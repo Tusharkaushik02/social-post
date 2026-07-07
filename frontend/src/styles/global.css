@@ -85,6 +85,58 @@
   --blur-modal: 40px;
 }
 
+/* ─── Dark Mode Tokens ─────────────────────────────────────── */
+.dark {
+  --color-background: #1a1c1f;
+  --color-on-background: #e2e2e7;
+
+  --color-surface: #1a1c1f;
+  --color-surface-dim: #111315;
+  --color-surface-bright: #2e3034;
+
+  --color-surface-container-lowest: #111315;
+  --color-surface-container-low: #1e2023;
+  --color-surface-container: #252729;
+  --color-surface-container-high: #2e3034;
+  --color-surface-container-highest: #393b3f;
+
+  --color-on-surface: #e2e2e7;
+  --color-on-surface-variant: #c4c4c9;
+
+  --color-inverse-surface: #e2e2e7;
+  --color-inverse-on-surface: #2e3034;
+
+  --color-primary: #ffffff;
+  --color-on-primary: #1a1c1f;
+  --color-primary-container: #e2e2e2;
+  --color-on-primary-container: #848484;
+  --color-primary-fixed: #3a3a3a;
+
+  --color-secondary: #6ba3ff;
+  --color-on-secondary: #001a41;
+  --color-secondary-container: #004493;
+  --color-on-secondary-container: #d8e2ff;
+
+  --color-tertiary: #c6c6cb;
+  --color-on-tertiary: #1a1b1f;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  --color-outline: #8e8e93;
+  --color-outline-variant: #48484a;
+
+  --color-surface-tint: #c6c6c6;
+  --color-surface-variant: #393b3f;
+
+  /* Shadows — softer in dark mode */
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow-elevated: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+  --shadow-floating: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
 /* ─── Global Reset ──────────────────────────────────────────── */
 *,
 *::before,
@@ -151,11 +203,21 @@ input, textarea, select { font: inherit; }
   border-bottom: 0.5px solid rgba(207, 196, 197, 0.3);
 }
 
+.dark .glass-nav {
+  background: rgba(26, 28, 31, 0.85);
+  border-bottom: 0.5px solid rgba(72, 72, 74, 0.3);
+}
+
 .glass-card {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 0.5px solid rgba(207, 196, 197, 0.3);
+}
+
+.dark .glass-card {
+  background: rgba(37, 39, 41, 0.8);
+  border: 0.5px solid rgba(72, 72, 74, 0.3);
 }
 
 .glass-modal-backdrop {
@@ -164,11 +226,17 @@ input, textarea, select { font: inherit; }
   -webkit-backdrop-filter: blur(var(--blur-modal));
 }
 
+.dark .glass-modal-backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
 /* ─── Scrollbar ─────────────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { border-radius: var(--radius-full); background: var(--color-surface-container-high); }
 ::-webkit-scrollbar-thumb:hover { background: var(--color-on-surface-variant); }
+.dark ::-webkit-scrollbar-thumb { background: var(--color-surface-container-highest); }
+.dark ::-webkit-scrollbar-thumb:hover { background: var(--color-outline); }
 .hide-scroll::-webkit-scrollbar { display: none; }
 .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -1691,3 +1759,216 @@ input, textarea, select { font: inherit; }
   position: relative;
 }
 
+/* ═══════════════════════════════════════════════════════════════
+   DIRECT MESSAGING COMPONENT STYLES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── Messages Layout ──────────────────────────────────────── */
+.messages-layout {
+  display: flex;
+  height: calc(100dvh - 64px);
+  overflow: hidden;
+  background-color: var(--color-background);
+}
+
+.messages-sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface);
+  border-right: 0.5px solid rgba(207, 196, 197, 0.3);
+  overflow: hidden;
+}
+
+.dark .messages-sidebar {
+  border-right: 0.5px solid rgba(72, 72, 74, 0.3);
+}
+
+.messages-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  background-color: var(--color-background);
+}
+
+/* ─── Chat Header Glass ───────────────────────────────────── */
+.chat-header-glass {
+  height: 64px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid rgba(207, 196, 197, 0.3);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.dark .chat-header-glass {
+  background: rgba(26, 28, 31, 0.5);
+  border-bottom: 0.5px solid rgba(72, 72, 74, 0.3);
+}
+
+/* ─── Message Bubbles ─────────────────────────────────────── */
+.message-bubble-incoming {
+  background-color: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+  padding: 16px;
+  border-radius: 16px 16px 16px 0;
+  box-shadow: var(--shadow-card);
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.message-bubble-outgoing {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  padding: 16px;
+  border-radius: 16px 16px 0 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* ─── Glass Input ─────────────────────────────────────────── */
+.glass-input {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(207, 196, 197, 0.3);
+  border-radius: 16px;
+  box-shadow: var(--shadow-floating);
+  padding: 8px;
+}
+
+.dark .glass-input {
+  background: rgba(30, 32, 35, 0.8);
+  border: 1px solid rgba(72, 72, 74, 0.3);
+}
+
+/* ─── Typing Dots Animation ──────────────────────────────── */
+@keyframes typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+.typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-on-surface-variant);
+  animation: typing-bounce 1.2s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* ─── Skeleton Shimmer ───────────────────────────────────── */
+@keyframes dm-shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.dm-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-container) 0px,
+    var(--color-surface-container-high) 40px,
+    var(--color-surface-container) 80px
+  );
+  background-size: 200px 100%;
+  animation: dm-shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+.dm-skeleton-circle {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface-container) 0px,
+    var(--color-surface-container-high) 40px,
+    var(--color-surface-container) 80px
+  );
+  background-size: 200px 100%;
+  animation: dm-shimmer 1.5s ease-in-out infinite;
+  border-radius: 50%;
+}
+
+/* ─── Message Area Scrollbar ─────────────────────────────── */
+.message-area {
+  scroll-behavior: smooth;
+}
+
+.message-area::-webkit-scrollbar { width: 4px; }
+.message-area::-webkit-scrollbar-track { background: transparent; }
+.message-area::-webkit-scrollbar-thumb {
+  background: var(--color-surface-container-high);
+  border-radius: 10px;
+}
+
+/* ─── Conversation List Scrollbar ────────────────────────── */
+.conversation-list::-webkit-scrollbar { width: 4px; }
+.conversation-list::-webkit-scrollbar-track { background: transparent; }
+.conversation-list::-webkit-scrollbar-thumb {
+  background: var(--color-surface-container-high);
+  border-radius: 10px;
+}
+
+/* ─── Chat Page Layout ───────────────────────────────────── */
+.chat-page-layout {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 64px);
+  overflow: hidden;
+  background-color: var(--color-background);
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* ─── Conversation Item Animations ───────────────────────── */
+.conversation-item-active-bar {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: var(--color-primary);
+  border-radius: 0 4px 4px 0;
+}
+
+/* ─── Message Fade-In ────────────────────────────────────── */
+@keyframes messageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Messages Responsive ────────────────────────────────── */
+@media (max-width: 767px) {
+  .messages-layout {
+    height: calc(100dvh - 64px - 72px); /* account for mobile tab bar */
+  }
+  .messages-sidebar {
+    width: 100%;
+    border-right: none;
+  }
+  .messages-chat {
+    width: 100%;
+  }
+  .chat-page-layout {
+    height: calc(100dvh - 64px); /* no mobile tab bar on chat page */
+  }
+}
