@@ -6,21 +6,26 @@ import {
   IoCompassOutline,
   IoHomeOutline,
   IoPersonOutline,
+  IoChatbubbleOutline,
 } from 'react-icons/io5';
 import Avatar from '@/components/ui/Avatar';
 import { useAuth } from '@/hooks/useAuth';
 import { buildPath, ROUTES } from '@/router/routes';
 import { useUIStore } from '@/stores/useUIStore';
+import { useUnreadStore } from '@/stores/useUnreadStore';
 
 const baseItems = [
   { label: 'Home', to: ROUTES.HOME, icon: IoHomeOutline, end: true },
   { label: 'Explore', to: ROUTES.EXPLORE, icon: IoCompassOutline },
   { label: 'Saved', to: ROUTES.SAVED, icon: IoBookmarkOutline },
+  { label: 'Messages', to: ROUTES.MESSAGES, icon: IoChatbubbleOutline },
 ];
 
 export default function Sidebar() {
   const { user, isAuthenticated, openAuthModal } = useAuth();
   const openCreatePostModal = useUIStore((s) => s.openCreatePostModal);
+  const totalUnread = useUnreadStore((s) => s.getTotalUnread());
+  
   const displayName = user?.displayName || user?.username || 'Guest';
   const username = user?.username || 'me';
   const profilePath = buildPath(ROUTES.PROFILE, { username });
@@ -48,6 +53,27 @@ export default function Sidebar() {
                   )}
                   <item.icon size={20} style={{ flexShrink: 0, transition: 'transform 0.2s' }} />
                   {item.label}
+                  {item.label === 'Messages' && totalUnread > 0 && (
+                    <span
+                      style={{
+                        marginLeft: 'auto',
+                        minWidth: 20,
+                        height: 20,
+                        borderRadius: 9999,
+                        background: 'var(--color-secondary-container)',
+                        color: 'var(--color-on-secondary-container)',
+                        fontSize: 10,
+                        fontWeight: 700,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        padding: '0 6px',
+                        lineHeight: 1,
+                      }}
+                    >
+                      {totalUnread > 99 ? '99+' : totalUnread}
+                    </span>
+                  )}
                 </>
               )}
             </NavLink>

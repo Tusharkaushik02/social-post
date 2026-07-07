@@ -6,10 +6,13 @@ import MobileTabBar from './MobileTabBar';
 import AuthModal from '@/components/auth/AuthModal';
 import CreatePostModal from '@/components/post/CreatePostModal';
 import { useUIStore } from '@/stores/useUIStore';
+import { useSocket } from '@/hooks/useSocket';
 
 export default function AppLayout() {
   const isCreatePostModalOpen = useUIStore((s) => s.createPostModal.isOpen);
   const closeCreatePostModal = useUIStore((s) => s.closeCreatePostModal);
+  
+  useSocket(); // Initialize socket when app layout loads
 
   return (
     <div className="app-layout">
@@ -23,10 +26,8 @@ export default function AppLayout() {
         <RightSidebar />
       </main>
 
-      {/* Mobile bottom tab bar — hidden on lg+ via its own classes */}
       <MobileTabBar />
 
-      {/* Global modals */}
       <AuthModal />
       <CreatePostModal isOpen={isCreatePostModalOpen} onClose={closeCreatePostModal} />
     </div>

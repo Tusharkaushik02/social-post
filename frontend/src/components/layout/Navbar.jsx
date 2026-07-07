@@ -6,6 +6,7 @@ import {
   IoChevronDownOutline,
   IoLogOutOutline,
   IoNotificationsOutline,
+  IoChatbubbleOutline,
   IoPersonOutline,
   IoSearchOutline,
   IoSettingsOutline,
@@ -16,6 +17,7 @@ import { APP_NAME } from '@/config/constants';
 import { useAuth } from '@/hooks/useAuth';
 import { buildPath, ROUTES } from '@/router/routes';
 import { useUIStore } from '@/stores/useUIStore';
+import { useUnreadStore } from '@/stores/useUnreadStore';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -24,6 +26,7 @@ export default function Navbar() {
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const { user, isAuthenticated, openAuthModal, logout } = useAuth();
   const openCreatePostModal = useUIStore((s) => s.openCreatePostModal);
+  const totalUnread = useUnreadStore((s) => s.getTotalUnread());
 
   const displayName = user?.displayName || user?.username || 'Profile';
   const username = user?.username || 'me';
@@ -112,13 +115,46 @@ export default function Navbar() {
         {/* Right Actions */}
         <div className="navbar-actions">
           {isAuthenticated && (
-            <button
-              type="button"
-              className="navbar-icon-btn"
-              aria-label="Notifications"
-            >
-              <IoNotificationsOutline size={20} />
-            </button>
+            <>
+              <Link
+                to={ROUTES.MESSAGES}
+                className="navbar-icon-btn"
+                aria-label="Messages"
+                style={{ position: 'relative' }}
+              >
+                <IoChatbubbleOutline size={20} />
+                {totalUnread > 0 && (
+                  <span
+                    style={{
+                      position: 'absolute',
+                      top: -4,
+                      right: -4,
+                      minWidth: 18,
+                      height: 18,
+                      borderRadius: 9999,
+                      background: 'var(--color-secondary-container)',
+                      color: 'var(--color-on-secondary-container)',
+                      fontSize: 10,
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '0 5px',
+                      lineHeight: 1,
+                    }}
+                  >
+                    {totalUnread > 99 ? '99+' : totalUnread}
+                  </span>
+                )}
+              </Link>
+              <button
+                type="button"
+                className="navbar-icon-btn"
+                aria-label="Notifications"
+              >
+                <IoNotificationsOutline size={20} />
+              </button>
+            </>
           )}
 
           {!isAuthenticated ? (

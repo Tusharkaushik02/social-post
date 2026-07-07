@@ -6,18 +6,21 @@ import {
   IoCompassOutline,
   IoHomeOutline,
   IoPersonOutline,
+  IoChatbubbleOutline,
 } from 'react-icons/io5';
 import { useAuth } from '@/hooks/useAuth';
 import { buildPath, ROUTES } from '@/router/routes';
 import { useUIStore } from '@/stores/useUIStore';
+import { useUnreadStore } from '@/stores/useUnreadStore';
 
 const mobileItems = [
   { label: 'Home', to: ROUTES.HOME, icon: IoHomeOutline, end: true },
   { label: 'Explore', to: ROUTES.EXPLORE, icon: IoCompassOutline },
+  { label: 'Messages', to: ROUTES.MESSAGES, icon: IoChatbubbleOutline },
   { label: 'Saved', to: ROUTES.SAVED, icon: IoBookmarkOutline },
 ];
 
-function MobileLink({ item }) {
+function MobileLink({ item, badge = 0 }) {
   return (
     <NavLink
       to={item.to}
@@ -36,7 +39,33 @@ function MobileLink({ item }) {
               transition={{ type: 'spring', stiffness: 400, damping: 30 }}
             />
           )}
-          <item.icon size={22} style={{ position: 'relative', zIndex: 10 }} />
+          <div style={{ position: 'relative' }}>
+            <item.icon size={22} style={{ position: 'relative', zIndex: 10 }} />
+            {badge > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: -4,
+                  right: -6,
+                  minWidth: 16,
+                  height: 16,
+                  borderRadius: 9999,
+                  background: 'var(--color-secondary-container)',
+                  color: 'var(--color-on-secondary-container)',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: '0 4px',
+                  lineHeight: 1,
+                  zIndex: 20
+                }}
+              >
+                {badge > 99 ? '99+' : badge}
+              </span>
+            )}
+          </div>
           <span className="mobile-tab-label">{item.label}</span>
         </>
       )}
@@ -47,6 +76,7 @@ function MobileLink({ item }) {
 export default function MobileTabBar() {
   const { user, isAuthenticated, openAuthModal } = useAuth();
   const openCreatePostModal = useUIStore((s) => s.openCreatePostModal);
+  const totalUnread = useUnreadStore((s) => s.getTotalUnread());
   const username = user?.username || 'me';
   const profilePath = buildPath(ROUTES.PROFILE, { username });
 
@@ -57,7 +87,7 @@ export default function MobileTabBar() {
     >
       <div className="mobile-tab-bar-inner">
         {mobileItems.slice(0, 2).map((item) => (
-          <MobileLink key={item.label} item={item} />
+          <MobileLink key={item.label} item={item} badge={item.label === 'Messages' ? totalUnread : 0} />
         ))}
 
         {/* Create Post — center button */}
@@ -73,7 +103,7 @@ export default function MobileTabBar() {
         </div>
 
         {mobileItems.slice(2).map((item) => (
-          <MobileLink key={item.label} item={item} />
+          <MobileLink key={item.label} item={item} badge={item.label === 'Messages' ? totalUnread : 0} />
         ))}
 
         {isAuthenticated ? (
