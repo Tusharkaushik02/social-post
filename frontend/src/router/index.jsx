@@ -26,6 +26,8 @@ const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const SavedPage = lazy(() => import('@/pages/SavedPage'));
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
+const MessagesPage = lazy(() => import('@/pages/MessagesPage'));
+const ChatPage = lazy(() => import('@/pages/ChatPage'));
 const LoginPage = lazy(() => import('@/pages/LoginPage'));
 const SignupPage = lazy(() => import('@/pages/SignupPage'));
 
@@ -84,6 +86,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             {withSuspense(<SettingsPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.MESSAGES,
+        element: (
+          <ProtectedRoute>
+            {withSuspense(<MessagesPage />)}
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: ROUTES.MESSAGES_CONVERSATION,
+        element: (
+          <ProtectedRoute>
+            {withSuspense(<ChatPage />)}
           </ProtectedRoute>
         ),
       },

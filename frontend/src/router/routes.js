@@ -12,6 +12,8 @@ export const ROUTES = {
   PROFILE: '/profile/:username',
   SAVED: '/saved',
   SETTINGS: '/settings',
+  MESSAGES: '/messages',
+  MESSAGES_CONVERSATION: '/messages/:conversationId',
   LOGIN: '/login',
   SIGNUP: '/signup',
 };
