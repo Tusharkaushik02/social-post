@@ -82,17 +82,6 @@ messageSchema.index({
   createdAt: -1,
 });
 
-// Deduplication (client retries)
-messageSchema.index(
-  {
-    clientMessageId: 1,
-  },
-  {
-    unique: true,
-    sparse: true,
-  }
-);
-
 // Unread message queries
 messageSchema.index({
   conversationId: 1,

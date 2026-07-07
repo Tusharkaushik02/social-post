@@ -42,10 +42,10 @@ const conversationSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
-     dmKey: {
-        type: String,
-        unique: true,
-        sparse: true,
+    dmKey: {
+      type: String,
+      unique: true,
+      sparse: true,
     }
   },
   {
@@ -68,8 +68,6 @@ conversationSchema.index({
   participants: 1,
   isGroup: 1,
 });
-
-conversationSchema.index({ dmKey: 1 }, { unique: true });
 
 /* ---------------- Model ---------------- */
 
