@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 import {
@@ -18,7 +18,9 @@ import ProtectedAction from '@/components/common/ProtectedAction';
 import { useAuth } from '@/hooks/useAuth';
 import { formatCount } from '@/lib/utils';
 import { usePostStore } from '@/stores/usePostStore';
+import { useMessageStore } from '@/stores/useMessageStore';
 import { usersApi } from '@/api/users.api';
+import { ROUTES, buildPath } from '@/router/routes';
 import EditProfileModal from '@/components/profile/EditProfileModal';
 
 const tabs = [
@@ -55,8 +57,10 @@ function normalizeProfile(payload) {
 
 export default function ProfilePage() {
   const { username } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   const { profilePosts, isLoading, fetchPostsByUser } = usePostStore();
+  const { createConversation } = useMessageStore();
   const [profile, setProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -171,6 +175,16 @@ export default function ProfilePage() {
     }
   };
 
+  const handleMessage = async () => {
+    if (!profile?._id) return;
+    try {
+      const conversation = await createConversation(profile._id);
+      navigate(buildPath(ROUTES.MESSAGES_CONVERSATION, { conversationId: conversation._id }));
+    } catch (error) {
+      toast.error('Could not start conversation');
+    }
+  };
+
   const handleShareProfile = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
@@ -252,15 +266,25 @@ export default function ProfilePage() {
                   Edit Profile
                 </Button>
               ) : (
-                <ProtectedAction onAction={handleFollow}>
-                  <Button
-                    type="button"
-                    variant={isFollowing ? 'secondary' : 'primary'}
-                    disabled={isFollowPending}
-                  >
-                    {isFollowing ? 'Following' : 'Follow'}
-                  </Button>
-                </ProtectedAction>
+                <>
+                  <ProtectedAction onAction={handleFollow}>
+                    <Button
+                      type="button"
+                      variant={isFollowing ? 'secondary' : 'primary'}
+                      disabled={isFollowPending}
+                    >
+                      {isFollowing ? 'Following' : 'Follow'}
+                    </Button>
+                  </ProtectedAction>
+                  <ProtectedAction onAction={handleMessage}>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                    >
+                      Message
+                    </Button>
+                  </ProtectedAction>
+                </>
               )}
               <Button
                 type="button"
