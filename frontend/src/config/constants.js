@@ -18,6 +18,12 @@ export const APP_DESCRIPTION =
 export const POSTS_PER_PAGE = 10;
 export const COMMENTS_PER_PAGE = 20;
 
+// ── Messages ─────────────────────────────────────────────────
+export const MESSAGES_PER_PAGE = 50;
+export const MAX_MESSAGE_LENGTH = 5000;
+export const TYPING_DEBOUNCE_MS = 1000;
+export const TYPING_TIMEOUT_MS = 3000;
+
 // ── Media ────────────────────────────────────────────────────────
 export const MAX_IMAGE_SIZE_MB = 10;
 export const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
@@ -47,4 +53,5 @@ export const FEATURES = {
   COMMENTS: true,
   SAVED_POSTS: true,
   USER_PROFILES: true,
+  DIRECT_MESSAGES: true,
 };
