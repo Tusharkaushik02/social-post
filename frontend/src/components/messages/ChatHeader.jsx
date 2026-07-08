@@ -4,13 +4,11 @@ import Avatar from '@/components/ui/Avatar';
 import OnlineIndicator from './OnlineIndicator';
 import { useOnlineStore } from '@/stores/useOnlineStore';
 
-export default function ChatHeader({ conversation, onBack }) {
-  const { participants } = conversation;
-  const partner = participants?.[0] || {};
-  const displayName = partner.displayName || partner.username || 'Unknown';
+export default function ChatHeader({ conversation, partner, onBack }) {
+  const displayName = partner?.displayName || partner?.username || 'Unknown';
   const { isOnline } = useOnlineStore();
   
-  const isUserOnline = isOnline(partner._id);
+  const isUserOnline = partner?._id ? isOnline(partner._id) : false;
 
   return (
     <div className="chat-header-glass">

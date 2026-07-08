@@ -52,7 +52,7 @@ export default function Sidebar() {
                     />
                   )}
                   <item.icon size={20} style={{ flexShrink: 0, transition: 'transform 0.2s' }} />
-                  {item.label}
+                  <span className="sidebar-text">{item.label}</span>
                   {item.label === 'Messages' && totalUnread > 0 && (
                     <span
                       style={{
@@ -91,7 +91,7 @@ export default function Sidebar() {
                     />
                   )}
                   <IoPersonOutline size={20} style={{ flexShrink: 0, transition: 'transform 0.2s' }} />
-                  Profile
+                  <span className="sidebar-text">Profile</span>
                 </>
               )}
             </NavLink>
@@ -102,7 +102,7 @@ export default function Sidebar() {
               className="sidebar-link"
             >
               <IoPersonOutline size={20} style={{ flexShrink: 0 }} />
-              Profile
+              <span className="sidebar-text">Profile</span>
             </button>
           )}
         </nav>
@@ -115,8 +115,8 @@ export default function Sidebar() {
           onClick={() => (isAuthenticated ? openCreatePostModal() : openAuthModal('login'))}
           className="sidebar-new-post"
         >
-          <IoAddOutline size={18} />
-          New Post
+          <IoAddOutline size={20} style={{ flexShrink: 0 }} />
+          <span className="sidebar-text">New Post</span>
         </button>
 
         {/* User Card */}
@@ -126,10 +126,10 @@ export default function Sidebar() {
           className="sidebar-user-card"
         >
           <Avatar src={user?.avatar} fallbackName={displayName} alt={displayName} size="sm" />
-          <div style={{ minWidth: 0, flex: 1 }}>
+          <div className="sidebar-user-card-info">
             <p className="truncate" style={{ fontSize: 14, fontWeight: 600, color: 'var(--color-on-surface)' }}>{displayName}</p>
             <p className="truncate" style={{ fontSize: 12, color: 'var(--color-on-surface-variant)' }}>
-              {isAuthenticated ? `@${username}` : 'Sign in to interact'}
+              {isAuthenticated ? `@${username}` : 'Sign in'}
             </p>
           </div>
         </button>

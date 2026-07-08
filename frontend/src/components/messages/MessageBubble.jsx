@@ -20,7 +20,7 @@ export default function MessageBubble({ message, isOwn, showAvatar, participantA
         flexDirection: isOwn ? 'row-reverse' : 'row',
         alignItems: 'flex-end',
         gap: '12px',
-        maxWidth: '80%',
+        maxWidth: '92%',
         marginLeft: isOwn ? 'auto' : '0',
         marginBottom: '4px'
       }}
