@@ -30,12 +30,21 @@ exports.sendMessage = async (req, res) => {
             return res.status(400).json({ success: false, error: 'conversationId and content are required' });
         }
 
-        const { message, isDuplicate } = await chatService.createMessage(conversationId, senderId, content, clientMessageId);
+        const { message, isDuplicate, conversation } = await chatService.createMessage(conversationId, senderId, content, clientMessageId);
         
         if (!isDuplicate) {
             const io = getIO();
             if (io) {
+                // Emit to the conversation room
                 io.to(`conversation:${conversationId}`).emit('message:new', message);
+
+                // Also emit to each participant's personal room
+                if (conversation?.participants) {
+                    conversation.participants.forEach(p => {
+                        const pid = p._id ? p._id.toString() : p.toString();
+                        io.to(`user:${pid}`).emit('message:new', message);
+                    });
+                }
             }
         }
 
