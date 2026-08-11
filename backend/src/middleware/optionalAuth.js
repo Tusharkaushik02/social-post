@@ -3,7 +3,10 @@ const userModel = require('../model/user.model');
 
 // Middleware to optionally authenticate - doesn't require token but will attach user if valid token is provided
 async function optionalAuthMiddleware(req, res, next) {
-    const token = req.cookies.token;
+    let token = req.cookies?.token;
+    if (!token && req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
     
     if (!token) {
         // No token provided, continue without user context

@@ -1,5 +1,7 @@
-const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config();
+
+const express = require('express');
 const authRoutes = require('./routes/auth.route');
 const postRoutes = require('./routes/post.route');
 const { applyMiddleware } = require('./index');
@@ -9,8 +11,6 @@ const commentRoutes = require('./routes/comment.route');
 const searchRoutes = require('./routes/search.route');
 const conversationRoutes = require('./routes/conversation.route');
 const messageRoutes = require('./routes/message.route');
-
-dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1); // Trust the reverse proxy (Render) to allow Secure cookies

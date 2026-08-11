@@ -11,7 +11,7 @@ import axios from 'axios';
 import { API_BASE_URL, STORAGE_KEYS } from '@/config/constants';
 
 const api = axios.create({
-  baseURL:  import.meta.env.VITE_API_URL,
+  baseURL: API_BASE_URL,
   timeout: 20000,
   withCredentials: true,
   headers: {
@@ -23,7 +23,10 @@ const api = axios.create({
 // Attaches Bearer token to every outgoing request + detailed logging
 api.interceptors.request.use(
   (config) => {
-    // Cookies are sent automatically via withCredentials — no manual token handling
+    const token = localStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     console.log('[API Request]', {
       method: config.method?.toUpperCase(),
       url: config.url,
