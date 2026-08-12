@@ -15,12 +15,16 @@ const postSchema = new mongoose.Schema({
         required: true
     },
     likes: [{
-        type : mongoose.Schema.Types.ObjectId,
-        ref : 'User'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
     }]
-    
+
 }, { timestamps: true });
 
-const Post = mongoose.model('Post' ,postSchema);
+postSchema.index({ User: 1, createdAt: -1 });
+postSchema.index({ createdAt: -1 });
+postSchema.index({ 'likes.userId': 1 });
+
+const Post = mongoose.model('Post', postSchema);
 
 module.exports = Post;
