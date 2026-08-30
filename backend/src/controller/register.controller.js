@@ -11,8 +11,8 @@ async function registerUser (req,res){
     if(!username || !email || !password){
         return res.status(400).json({error:"All fields are required"})
     }
-    const existingUser = await userModel.findOne({ email });
-    const existingUsername =await userModel.findOne({ username });
+    const existingUser = await userModel.findOne({ email }).select('_id').lean();
+    const existingUsername = await userModel.findOne({ username }).select('_id').lean();
     if (existingUsername) {
         return res.status(409).json({ error: 'Username already in use' });
     }

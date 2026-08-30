@@ -55,7 +55,7 @@ if (user) {
     let username = usernameBase;
     let counter = 1;
 
-    while (await userModel.findOne({ username })) {
+    while (await userModel.findOne({ username }).select('_id').lean()) {
         username = `${usernameBase}${counter}`;
         counter++;
     }

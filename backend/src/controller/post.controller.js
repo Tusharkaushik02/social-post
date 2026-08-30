@@ -144,9 +144,10 @@ exports.getAllPosts = async (req, res) => {
             posts = await Post.find(cursorFilter)
                 .populate("User", "username displayname avatarUrl")
                 .sort(sortByNewest)
-                .limit(fetchLimit);
+                .limit(fetchLimit)
+                .lean();
         } else {
-            const currentUser = await User.findById(req.user.id).select("following");
+            const currentUser = await User.findById(req.user.id).select("following").lean();
             const followingIds = currentUser?.following || [];
 
             const [followingPosts, explorePosts] = await Promise.all([
@@ -156,7 +157,8 @@ exports.getAllPosts = async (req, res) => {
                 })
                     .populate("User", "username displayname avatarUrl")
                     .sort(sortByNewest)
-                    .limit(fetchLimit),
+                    .limit(fetchLimit)
+                    .lean(),
                 Post.find({
                     User: {
                         $nin: [...followingIds, req.user.id]
@@ -166,6 +168,7 @@ exports.getAllPosts = async (req, res) => {
                     .populate("User", "username displayname avatarUrl")
                     .sort(sortByNewest)
                     .limit(fetchLimit)
+                    .lean()
             ]);
 
             posts = [...followingPosts, ...explorePosts]
@@ -227,7 +230,7 @@ exports.getAllPosts = async (req, res) => {
 exports.getPostById = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id).populate('User', 'username displayname avatarUrl');
+        const post = await Post.findById(id).populate('User', 'username displayname avatarUrl').lean();
 
         if (!post) {
             return res.status(404).json({ 
@@ -261,7 +264,7 @@ exports.getPostById = async (req, res) => {
 exports.deletePost = async (req, res) => {
     try {
         const { id } = req.params;
-        const post = await Post.findById(id);
+        const post = await Post.findById(id).select('User').lean();
 
         if (!post) {
             return res.status(404).json({ 

@@ -58,7 +58,8 @@ exports.getFollowers = async (req,res) => {
                     skip: (page - 1) * limit,
                     limit
                 }
-            });
+            })
+            .lean();
 
         if (!user) {
             return res.status(404).json({
@@ -69,8 +70,8 @@ exports.getFollowers = async (req,res) => {
 
         res.status(200).json({
             success: true,
-            totalFollowers: user.followers.length,
-            followers: user.followers
+            totalFollowers: user.followers ? user.followers.length : 0,
+            followers: user.followers || []
         });
     }
     catch (error){
@@ -95,6 +96,7 @@ exports.getfollowing =async (req,res) => {
                     limit
                 }
             })
+            .lean();
              if (!user) {
             return res.status(404).json({
                 success: false,
@@ -104,8 +106,8 @@ exports.getfollowing =async (req,res) => {
 
         res.status(200).json({
             success: true,
-            totalFollowing: user.following.length,
-            following: user.following
+            totalFollowing: user.following ? user.following.length : 0,
+            following: user.following || []
         });
     } catch (err) {
 

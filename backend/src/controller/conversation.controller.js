@@ -11,8 +11,15 @@ exports.createOrGetConversation = async (req, res) => {
 
         const { conversation, created } = await chatService.getOrCreateDMConversation(currentUserId, participantId);
         
-        const responseConv = conversation.toObject();
-        responseConv.unreadCount = conversation.unreadCount ? (conversation.unreadCount.get(currentUserId.toString()) || 0) : 0;
+        const responseConv = conversation.toObject ? conversation.toObject() : { ...conversation };
+        const uid = currentUserId.toString();
+        let unread = 0;
+        if (conversation.unreadCount) {
+            unread = conversation.unreadCount instanceof Map || typeof conversation.unreadCount.get === 'function'
+                ? (conversation.unreadCount.get(uid) || 0)
+                : (conversation.unreadCount[uid] || 0);
+        }
+        responseConv.unreadCount = unread;
 
         res.status(created ? 201 : 200).json({
             success: true,

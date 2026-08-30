@@ -38,13 +38,21 @@ const chatService = {
             participants: userId
         })
         .populate('participants', 'username displayname avatarUrl')
-        .sort({ 'lastMessage.createdAt': -1, updatedAt: -1 });
+        .sort({ 'lastMessage.createdAt': -1, updatedAt: -1 })
+        .lean();
 
         return conversations.map(conv => {
-            const obj = conv.toObject();
-            // Get unread count for this specific user
-            obj.unreadCount = conv.unreadCount ? (conv.unreadCount.get(userId.toString()) || 0) : 0;
-            return obj;
+            const uid = userId.toString();
+            let unread = 0;
+            if (conv.unreadCount) {
+                unread = conv.unreadCount instanceof Map
+                    ? (conv.unreadCount.get(uid) || 0)
+                    : (conv.unreadCount[uid] || 0);
+            }
+            return {
+                ...conv,
+                unreadCount: unread
+            };
         });
     },
 
@@ -85,7 +93,8 @@ const chatService = {
         const fetchLimit = limit + 1;
         const messages = await Message.find(query)
             .sort({ createdAt: -1, _id: -1 })
-            .limit(fetchLimit);
+            .limit(fetchLimit)
+            .lean();
 
         const hasMore = messages.length > limit;
         const resultMessages = hasMore ? messages.slice(0, limit) : messages;
@@ -110,7 +119,7 @@ const chatService = {
         const conversation = await chatService.getConversationById(conversationId, senderId);
 
         if (clientMessageId) {
-            const existing = await Message.findOne({ clientMessageId, sender: senderId });
+            const existing = await Message.findOne({ clientMessageId, sender: senderId }).lean();
             if (existing) {
                 return { message: existing, isDuplicate: true, conversation };
             }
@@ -150,7 +159,7 @@ const chatService = {
             conversationId,
             sender: { $ne: userId },
             readBy: { $ne: userId }
-        });
+        }).select('_id').lean();
 
         const messageIds = unreadMessages.map(m => m._id);
 

@@ -22,11 +22,16 @@ exports.createComment = async (req, res) => {
 exports.getCommentsByPost = async (req, res) => {
     try {
         const postId = req.params.postId || req.params.id;
-        const comments = await comment.find({ post: postId, parentComment: null }).populate('user', 'username displayname avatarUrl').sort({ createdAt: -1 });
+        const comments = await comment.find({ post: postId, parentComment: null })
+            .populate('user', 'username displayname avatarUrl')
+            .sort({ createdAt: -1 })
+            .lean();
         const commentsWithReplyCounts = await Promise.all(comments.map(async (item) => {
-            const itemObject = item.toObject();
-            itemObject.replyCount = await comment.countDocuments({ parentComment: item._id });
-            return itemObject;
+            const replyCount = await comment.countDocuments({ parentComment: item._id });
+            return {
+                ...item,
+                replyCount
+            };
         }));
         res.json({ comments: commentsWithReplyCounts });
     }
@@ -38,7 +43,7 @@ exports.getCommentsByPost = async (req, res) => {
 exports.deleteComment = async (req, res) => {
     try {
         const { commentId } = req.params;
-        const commentToDelete = await comment.findById(commentId);
+        const commentToDelete = await comment.findById(commentId).select('user').lean();
 
         if (!commentToDelete) {
             return res.status(404).json({ error: 'Comment not found' });
@@ -59,7 +64,10 @@ exports.deleteComment = async (req, res) => {
 exports.getrepliesToComment = async (req, res) => {
     try {
         const { commentId } = req.params;
-        const replies = await comment.find({ parentComment: commentId }).populate('user', 'username displayname avatarUrl').sort({ createdAt: -1 });
+        const replies = await comment.find({ parentComment: commentId })
+            .populate('user', 'username displayname avatarUrl')
+            .sort({ createdAt: -1 })
+            .lean();
         res.json({ replies });
     } catch (error) {
         res.status(400).json({ error: error.message });

@@ -4,7 +4,7 @@ const userModel = require('../model/user.model');
 
 async function getMe(req, res) {
     try {
-        const user = await userModel.findById(req.user.id).select('-passwordHash');
+        const user = await userModel.findById(req.user.id).select('-passwordHash').lean();
         if (!user) {
             return res.status(404).json({ success: false, error: 'User not found' });
         }

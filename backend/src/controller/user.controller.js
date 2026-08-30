@@ -6,7 +6,8 @@ exports.getUserByUsername = async (req, res) => {
         const { username } = req.params;
 
         const user = await User.findOne({ username })
-            .select("-passwordHash");
+            .select("-passwordHash")
+            .lean();
 
         if (!user) {
             return res.status(404).json({
@@ -47,7 +48,7 @@ exports.getUserByUsername = async (req, res) => {
 exports.getSuggestions = async (req, res) => {
     try {
         const limit = Math.min(Number(req.query.limit) || 4, 12);
-        const currentUser = await User.findById(req.user.id).select("following");
+        const currentUser = await User.findById(req.user.id).select("following").lean();
 
         if (!currentUser) {
             return res.status(404).json({
@@ -56,7 +57,7 @@ exports.getSuggestions = async (req, res) => {
             });
         }
 
-        const excludedIds = [currentUser._id, ...currentUser.following];
+        const excludedIds = [currentUser._id, ...(currentUser.following || [])];
         const suggestions = await User.aggregate([
             { $match: { _id: { $nin: excludedIds } } },
             { $sample: { size: limit } },
@@ -90,11 +91,10 @@ exports.getSuggestions = async (req, res) => {
     }
 };
 
-exports.
-getUserPosts = async (req, res) => {
+exports.getUserPosts = async (req, res) => {
     try {
         const { username } = req.params;
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username }).select("_id").lean();
 
         if (!user) {
             return res.status(404).json({
@@ -102,7 +102,10 @@ getUserPosts = async (req, res) => {
                 error: "User not found"
             });
         }
-        const posts = await Post.find({ User: user._id }).populate('User', 'username displayname avatarUrl').sort({ createdAt: -1 });
+        const posts = await Post.find({ User: user._id })
+            .populate('User', 'username displayname avatarUrl')
+            .sort({ createdAt: -1 })
+            .lean();
 
         res.status(200).json({
             success: true,

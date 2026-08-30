@@ -14,7 +14,7 @@ exports.toggleSave = async (req, res) => {
         const userId = req.user.id;
 
         // Check if the post exists
-        const post = await Post.findById(postId);
+        const post = await Post.findById(postId).select('_id').lean();
         if (!post) {
             return res.status(404).json({
                 success: false,
@@ -26,7 +26,7 @@ exports.toggleSave = async (req, res) => {
         const existingSave = await SavedPost.findOne({
             user: userId,
             post: postId
-        });
+        }).select('_id').lean();
 
         if (existingSave) {
             // Already saved → unsave
@@ -94,7 +94,8 @@ exports.getSavedPosts = async (req, res) => {
                     path: 'User',
                     select: 'username displayname avatarUrl'
                 }
-            });
+            })
+            .lean();
 
         const total = await SavedPost.countDocuments({ user: userId });
 
@@ -147,7 +148,7 @@ exports.getSavedPostIds = async (userId, postIds) => {
     const savedEntries = await SavedPost.find({
         user: userId,
         post: { $in: postIds }
-    }).select('post');
+    }).select('post').lean();
 
     return new Set(savedEntries.map(entry => entry.post.toString()));
 };

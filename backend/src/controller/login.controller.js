@@ -7,7 +7,7 @@ dotenv.config();
 
 async function loginUser(req, res) { 
     const { email, password } = req.body;
-    const user = await userModel.findOne({ email });
+    const user = await userModel.findOne({ email }).lean();
 
     if(!user){
         return res.status(401).json({ error: 'sign up first' });
@@ -28,7 +28,7 @@ async function loginUser(req, res) {
                secure,
                sameSite: secure ? 'none' : 'lax',
            });
-         const userResponse = user.toObject();
+         const userResponse = { ...user };
          delete userResponse.passwordHash;
          return res.json({ success: true, token, user: userResponse });
 }

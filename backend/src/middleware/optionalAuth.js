@@ -16,7 +16,7 @@ async function optionalAuthMiddleware(req, res, next) {
 
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await userModel.findOne({ _id: decoded.id });
+        const user = await userModel.findOne({ _id: decoded.id }).select('_id').lean();
         
         if (user) {
             req.user = decoded;

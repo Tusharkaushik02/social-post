@@ -51,7 +51,8 @@ exports.getLikedUsers = async (req, res) => {
                 model: 'User',
                 select: 'username displayname avatarUrl',
                 options: { skip, limit }
-            });
+            })
+            .lean();
 
         if (!postWithLikes) {
             return res.status(404).json({ success: false, error: 'Post not found' });
