@@ -11,7 +11,6 @@ import {
   IoStatsChartOutline,
   IoTrashOutline,
 } from 'react-icons/io5';
-import Button from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import Avatar from '@/components/ui/Avatar';
 import { useAuth } from '@/hooks/useAuth';
@@ -144,7 +143,7 @@ export default function CreatePostModal({ isOpen, onClose }) {
         {/* Content Body */}
         <div className="create-post-body">
           {/* User Info & Text Area */}
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+          <div className="create-post-caption-row">
             <Avatar
               src={user?.avatar}
               fallbackName={user?.displayName || user?.username}
@@ -152,20 +151,28 @@ export default function CreatePostModal({ isOpen, onClose }) {
               size="md"
               style={{ flexShrink: 0 }}
             />
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100px' }}>
+            <div className="create-post-caption-field">
               <textarea
                 id="postContent"
                 aria-label="Post caption"
                 className="create-post-textarea"
                 placeholder="What's on your mind?"
                 rows={3}
+                disabled={isSubmitting}
+                aria-invalid={Boolean(errors.caption)}
+                aria-describedby={errors.caption ? 'post-caption-error' : undefined}
                 {...register('caption')}
               />
+              {errors.caption && (
+                <p id="post-caption-error" className="input-error" role="alert">
+                  {errors.caption.message}
+                </p>
+              )}
             </div>
           </div>
 
           {/* Drag & Drop File Input Area */}
-          <div style={{ marginLeft: '52px', marginBottom: '4px' }}>
+          <div className="create-post-media">
             {imagePreview ? (
               <div style={{ position: 'relative', width: '100%', borderRadius: 'var(--radius-sm)', overflow: 'hidden', border: '0.5px solid rgba(207, 196, 197, 0.3)' }}>
                 <img
@@ -236,7 +243,7 @@ export default function CreatePostModal({ isOpen, onClose }) {
           </div>
 
           {/* Tools & Counters Footer */}
-          <div className="create-post-tools" style={{ marginLeft: '52px' }}>
+          <div className="create-post-tools">
             <div style={{ display: 'flex', gap: '2px' }}>
               {[
                 { icon: IoLocationOutline, label: 'Add location' },
